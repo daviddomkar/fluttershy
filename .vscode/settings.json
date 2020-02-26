@@ -1,0 +1,5 @@
+{
+  "dart.previewFlutterUiGuides": true,
+  "dart.previewFlutterUiGuidesCustomTracking": true,
+  "dart.debugExternalLibraries": true
+}
