@@ -1,7 +1,20 @@
 library fluttershy;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
+import 'package:flutter/widgets.dart' hide Size;
+
+import 'package:fluttershy/foundation/size.dart';
+import 'package:fluttershy/config.dart';
+
+class Fluttershy extends LeafRenderObjectWidget {
+  final Config Function() _config;
+  final Size _size;
+
+  Fluttershy({@required Config Function() config, Size size})
+      : _size = size,
+        _config = config;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    throw UnimplementedError();
+  }
 }
