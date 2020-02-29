@@ -1,8 +1,4 @@
 import 'package:dartex/component.dart';
-import 'package:fluttershy/foundation/position.dart';
-import 'package:fluttershy/foundation/scale.dart';
+import 'package:fluttershy/foundation/transform.dart';
 
-class TransformComponent extends Component {
-  Position position;
-  Scale scale;
-}
+class TransformComponent extends Transform implements Component {}
