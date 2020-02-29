@@ -12,8 +12,13 @@ class Fluttershy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return config.bundles.map((bundle) =>
-        bundle.buildMiddleware(context, _FluttershyWidget(config: config)));
+    return config.bundles.fold(
+      _FluttershyWidget(config: config),
+      (widget, bundle) => bundle.buildMiddleware(
+        context,
+        widget,
+      ),
+    );
 /*
     return LayoutBuilder(
       builder: (context, constraints) {

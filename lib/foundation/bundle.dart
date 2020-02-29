@@ -1,4 +1,5 @@
 import 'package:dartex/system.dart';
+import 'package:dartex/world.dart';
 import 'package:flutter/widgets.dart';
 
 class Bundle {
@@ -9,7 +10,7 @@ class Bundle {
       : _components = components,
         _systems = systems;
 
-  Widget buildMiddleware(BuildContext context, Widget child) {
+  Widget buildMiddleware(BuildContext context, Widget child, World world) {
     return child;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dartex/world.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttershy/foundation/bundle.dart';
 
@@ -11,7 +12,7 @@ class RenderingBundle extends Bundle {
         super([], []);
 
   @override
-  Widget buildMiddleware(BuildContext context, Widget child) {
+  Widget buildMiddleware(BuildContext context, Widget child, World world) {
     return LayoutBuilder();
   }
 }
