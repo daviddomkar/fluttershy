@@ -29,7 +29,7 @@ class _$PositionTearOff {
 
 const $Position = _$PositionTearOff();
 
-class _$_Position implements _Position {
+class _$_Position with DiagnosticableTreeMixin implements _Position {
   const _$_Position([this.x = 0, this.y = 0, this.z = 0]);
 
   @JsonKey(defaultValue: 0)
@@ -43,8 +43,18 @@ class _$_Position implements _Position {
   final double z;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'Position(x: $x, y: $y, z: $z)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'Position'))
+      ..add(DiagnosticsProperty('x', x))
+      ..add(DiagnosticsProperty('y', y))
+      ..add(DiagnosticsProperty('z', z));
   }
 
   @override

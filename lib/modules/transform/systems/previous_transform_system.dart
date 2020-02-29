@@ -9,7 +9,7 @@ class PreviousTransformSystem extends System {
       : super([TransformComponent, PreviousTransformComponent]);
 
   @override
-  void run(List<Entity> entities) {
+  void run(World world, List<Entity> entities) {
     entities.forEach((entity) {
       Transform current = entity.getComponent<TransformComponent>();
       Transform previous = entity.getComponent<PreviousTransformComponent>();

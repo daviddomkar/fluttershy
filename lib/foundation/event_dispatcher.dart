@@ -9,7 +9,6 @@ class EventDispatcher with Resource {
   EventDispatcher() : _queue = Queue();
 
   void dispatchEvent(Event event) {
-    print('[FLUTTERSHY]: DispatchEvent: ' + event.toString());
     _queue.add(event);
   }
 

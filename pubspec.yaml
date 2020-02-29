@@ -7,7 +7,9 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
-  dartex: ^0.0.1
+  dartex: ^0.0.4
+  ordered_set: ^1.1.5
+  tuple: ^1.0.3
   freezed_annotation: ^0.7.1
   flutter:
     sdk: flutter

@@ -109,10 +109,11 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
     EventDispatcher dispatcher = world.getResource<EventDispatcher>();
 
-    dispatcher.dispatchEvent(CreateEvent());
+    dispatcher.dispatchEvent(CreateEvent(
+        size: Size(constraints.biggest.width, constraints.biggest.height)));
 
+    // Update on first frame
     world.run();
-
     dispatcher.dispatchEvent(UpdateEvent(dt: 0));
 
     _scheduleTick();
@@ -152,10 +153,8 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     while (dispatcher.queue.isNotEmpty) {
       Event event = dispatcher.queue.removeFirst();
 
-      print('[FLUTTERSHY]: Update: ' + event.toString());
-
       modules.forEach((module) {
-        module.onEvent(event);
+        module.onEvent(event, world);
       });
     }
 
