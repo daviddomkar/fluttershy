@@ -24,5 +24,6 @@ class RendererResource with Resource {
   void render(Canvas canvas) {
     _renderables
         .forEach((renderable) => renderable.item2(canvas, renderable.item1));
+    _renderables.clear();
   }
 }
