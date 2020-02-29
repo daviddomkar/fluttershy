@@ -1,3 +1,5 @@
 import 'package:fluttershy/foundation/bundle.dart';
 
-class TransformBundle extends Bundle {}
+class TransformBundle extends Bundle {
+  TransformBundle() : super([], []);
+}
