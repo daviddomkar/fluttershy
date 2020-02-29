@@ -13,5 +13,5 @@ class EventDispatcher with Resource {
     _queue.add(event);
   }
 
-  Queue<Event> get queue => queue;
+  Queue<Event> get queue => _queue;
 }
