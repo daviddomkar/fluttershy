@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:fluttershy/foundation/event.dart';
 import 'package:fluttershy/foundation/module.dart';
 
-class RenderingBundle extends Module {
+class RenderingModule extends Module {
   final Size _size;
   final Color _backgroundColor;
 
-  RenderingBundle({Color backgroundColor, Size size})
+  RenderingModule({Color backgroundColor, Size size})
       : _size = size ?? null,
         _backgroundColor = backgroundColor ?? Colors.black,
         super([], []);
