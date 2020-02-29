@@ -1,1 +1,0 @@
-class ParentComponent implements Component {}
