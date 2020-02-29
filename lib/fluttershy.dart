@@ -98,24 +98,31 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void performResize() {
     super.performResize();
 
-    EventDispatcher dispatcher = world.getResource<EventDispatcher>();
-
     if (!_created) {
-      dispatcher.dispatchEvent(CreateEvent(
-          size: Size(constraints.biggest.width, constraints.biggest.height)));
+      modules.forEach((module) {
+        module.onEvent(
+            CreateEvent(
+              size: Size(constraints.biggest.width, constraints.biggest.height),
+            ),
+            world);
+      });
     }
 
-    dispatcher.dispatchEvent(
-      ResizeEvent(
-        size: Size(constraints.biggest.width, constraints.biggest.height),
-      ),
-    );
+    modules.forEach((module) {
+      module.onEvent(
+          ResizeEvent(
+            size: Size(constraints.biggest.width, constraints.biggest.height),
+          ),
+          world);
+    });
 
     // Update on first frame
     if (!_created) {
-      world.run();
+      modules.forEach((module) {
+        module.onEvent(UpdateEvent(dt: 0), world);
+      });
 
-      dispatcher.dispatchEvent(UpdateEvent(dt: 0));
+      world.run();
       _created = true;
     }
   }
@@ -131,7 +138,9 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   @override
   void detach() {
     super.detach();
-    world.getResource<EventDispatcher>().dispatchEvent(DestroyEvent());
+    modules.forEach((module) {
+      module.onEvent(DestroyEvent(), world);
+    });
     _unscheduleTick();
     _unbindLifecycleListener();
   }
@@ -166,9 +175,11 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
       });
     }
 
-    world.run();
+    modules.forEach((module) {
+      module.onEvent(UpdateEvent(dt: dt), world);
+    });
 
-    dispatcher.dispatchEvent(UpdateEvent(dt: dt));
+    world.run();
   }
 
   double _computeDeltaT(Duration now) {
@@ -184,9 +195,9 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void paint(PaintingContext context, Offset offset) {
     context.canvas.save();
     context.canvas.translate(offset.dx, offset.dy);
-    world
-        .getResource<EventDispatcher>()
-        .dispatchEvent(RenderEvent(canvas: context.canvas));
+    modules.forEach((module) {
+      module.onEvent(RenderEvent(canvas: context.canvas), world);
+    });
     context.canvas.restore();
   }
 
@@ -200,10 +211,12 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    world.getResource<EventDispatcher>().dispatchEvent(
+    modules.forEach((module) {
+      module.onEvent(
           LifecycleStateChangeEvent(
             state: state,
           ),
-        );
+          world);
+    });
   }
 }
