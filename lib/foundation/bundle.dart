@@ -1,8 +1,10 @@
 import 'package:dartex/system.dart';
-import 'package:flutter/foundation.dart';
 
 class Bundle {
+  List<Type> _components;
   List<System> _systems;
 
-  Bundle({@required List<System> systems}) : _systems = systems;
+  Bundle(List<System> systems, List<Type> components)
+      : _components = components,
+        _systems = systems;
 }
