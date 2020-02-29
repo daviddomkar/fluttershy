@@ -7,8 +7,7 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
-  dartex:
-    git: git://github.com/DavidDomkar/dartex.git
+  dartex: ^0.0.1
   flutter:
     sdk: flutter
 

@@ -6,7 +6,7 @@ class Bundle {
   List<Type> _components;
   List<System> _systems;
 
-  Bundle(List<System> systems, List<Type> components)
+  Bundle(List<Type> components, List<System> systems)
       : _components = components,
         _systems = systems;
 
