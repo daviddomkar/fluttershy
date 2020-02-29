@@ -5,4 +5,6 @@ class Config {
   List<Bundle> _bundles;
 
   Config({@required List<Bundle> bundles}) : _bundles = bundles;
+
+  get bundles => _bundles;
 }
