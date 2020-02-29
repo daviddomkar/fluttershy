@@ -1,12 +1,12 @@
 import 'package:dartex/world.dart';
 import 'package:flutter/material.dart' hide Size;
-import 'package:fluttershy/bundles/rendering/components/camera_component.dart';
 import 'package:fluttershy/foundation/event.dart';
 import 'package:fluttershy/foundation/events/create_event.dart';
 import 'package:fluttershy/foundation/events/render_event.dart';
 import 'package:fluttershy/foundation/events/resize_event.dart';
 import 'package:fluttershy/foundation/module.dart';
 import 'package:fluttershy/foundation/size.dart';
+import 'package:fluttershy/modules/rendering/components/camera_component.dart';
 import 'package:fluttershy/modules/rendering/components/rectangle_component.dart';
 import 'package:fluttershy/modules/rendering/resources/renderer_resource.dart';
 import 'package:fluttershy/modules/rendering/systems/rectangle_rendering_system.dart';
