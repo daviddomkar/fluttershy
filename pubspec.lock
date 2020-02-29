@@ -62,7 +62,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: ae55df534065f6485bc5e16e4840876d69739fcf
+      resolved-ref: e83a4971aa9edcbc03f7a393b768cd571f0e5248
       url: "git://github.com/DavidDomkar/dartex.git"
     source: git
     version: "0.0.1"
