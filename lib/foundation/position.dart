@@ -9,8 +9,4 @@ abstract class Position with _$Position {
       [@Default(0) double x,
       @Default(0) double y,
       @Default(0) double z]) = _Position;
-
-  Offset toOffset() {
-    return Offset(x, y);
-  }
 }

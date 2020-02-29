@@ -19,7 +19,10 @@ class RectangleRenderingSystem extends System {
 
         canvas.drawRect(
             Rect.fromCenter(
-                center: transformComponent.position.toOffset(),
+                center: Offset(
+                  transformComponent.position.x,
+                  transformComponent.position.y,
+                ),
                 width: rectangleComponent.size.width,
                 height: rectangleComponent.size.height),
             Paint()..color = rectangleComponent.color);
