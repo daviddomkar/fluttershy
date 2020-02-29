@@ -5,8 +5,8 @@ import 'package:fluttershy/modules/transform/systems/parent_transform_system.dar
 import 'package:fluttershy/modules/transform/systems/previous_transform_system.dart';
 import 'package:fluttershy/foundation/module.dart';
 
-class TransformBundle extends Module {
-  TransformBundle()
+class TransformModule extends Module {
+  TransformModule()
       : super([
           TransformComponent,
           PreviousTransformComponent,
