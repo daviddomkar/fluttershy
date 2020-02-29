@@ -15,7 +15,7 @@ class Module {
     return child;
   }
 
-  void onEvent(Event event) {}
+  void onEvent(Event event, World world) {}
 
   List<Type> get components => _components;
   List<System> get systems => _systems;

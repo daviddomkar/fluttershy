@@ -7,7 +7,7 @@ class ParentTransformSystem extends System {
   ParentTransformSystem() : super([TransformComponent, ParentComponent]);
 
   @override
-  void run(List<Entity> entities) {
+  void run(World world, List<Entity> entities) {
     entities.forEach((entity) {});
   }
 }

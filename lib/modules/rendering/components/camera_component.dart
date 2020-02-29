@@ -1,6 +1,6 @@
 import 'package:dartex/component.dart';
+import 'package:fluttershy/foundation/size.dart';
 
-class CameraComponent implements Component {
-  double width;
-  double height;
+class CameraComponent with Component {
+  Size size;
 }
