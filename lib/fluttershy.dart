@@ -85,6 +85,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   final World world;
 
   int _frameCallbackId;
+  bool _created = false;
 
   Duration previous = Duration.zero;
 
@@ -96,25 +97,32 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   @override
   void performResize() {
     super.performResize();
-    world.getResource<EventDispatcher>().dispatchEvent(
-          ResizeEvent(
-            size: Size(constraints.biggest.width, constraints.biggest.height),
-          ),
-        );
+
+    EventDispatcher dispatcher = world.getResource<EventDispatcher>();
+
+    if (!_created) {
+      dispatcher.dispatchEvent(CreateEvent(
+          size: Size(constraints.biggest.width, constraints.biggest.height)));
+    }
+
+    dispatcher.dispatchEvent(
+      ResizeEvent(
+        size: Size(constraints.biggest.width, constraints.biggest.height),
+      ),
+    );
+
+    // Update on first frame
+    if (!_created) {
+      world.run();
+
+      dispatcher.dispatchEvent(UpdateEvent(dt: 0));
+      _created = true;
+    }
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-
-    EventDispatcher dispatcher = world.getResource<EventDispatcher>();
-
-    dispatcher.dispatchEvent(CreateEvent(
-        size: Size(constraints.biggest.width, constraints.biggest.height)));
-
-    // Update on first frame
-    world.run();
-    dispatcher.dispatchEvent(UpdateEvent(dt: 0));
 
     _scheduleTick();
     _bindLifecycleListener();
