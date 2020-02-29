@@ -106,7 +106,14 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    world.getResource<EventDispatcher>().dispatchEvent(CreateEvent());
+
+    EventDispatcher dispatcher = world.getResource<EventDispatcher>();
+
+    dispatcher.dispatchEvent(CreateEvent());
+
+    world.run();
+
+    dispatcher.dispatchEvent(UpdateEvent(dt: 0));
 
     _scheduleTick();
     _bindLifecycleListener();
@@ -142,8 +149,6 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
     EventDispatcher dispatcher = world.getResource<EventDispatcher>();
 
-    dispatcher.dispatchEvent(UpdateEvent(dt: dt));
-
     while (dispatcher.queue.isNotEmpty) {
       Event event = dispatcher.queue.removeFirst();
 
@@ -155,6 +160,8 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     }
 
     world.run();
+
+    dispatcher.dispatchEvent(UpdateEvent(dt: dt));
   }
 
   double _computeDeltaT(Duration now) {
