@@ -1,7 +1,7 @@
 name: fluttershy
 description: Experimental game engine written in Flutter.
 version: 0.0.1
-author: David Domkář
+homepage: https://github.com/DavidDomkar/fluttershy
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
