@@ -1,8 +1,9 @@
 import 'package:dartex/world.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttershy/foundation/bundle.dart';
+import 'package:fluttershy/foundation/event.dart';
+import 'package:fluttershy/foundation/module.dart';
 
-class RenderingBundle extends Bundle {
+class RenderingBundle extends Module {
   final Size _size;
   final Color _backgroundColor;
 
@@ -13,6 +14,15 @@ class RenderingBundle extends Bundle {
 
   @override
   Widget buildMiddleware(BuildContext context, Widget child, World world) {
-    return LayoutBuilder();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          color: _backgroundColor,
+          child: child,
+        );
+      },
+    );
   }
+
+  void onEvent(Event event) {}
 }
