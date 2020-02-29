@@ -1,6 +1,6 @@
 import 'package:dartex/component.dart';
 
-class CameraComponent extends Component {
+class CameraComponent implements Component {
   double width;
   double height;
 }
