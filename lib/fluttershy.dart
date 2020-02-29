@@ -3,7 +3,7 @@ library fluttershy;
 import 'package:flutter/widgets.dart' hide Size;
 
 import 'package:fluttershy/foundation/size.dart';
-import 'package:fluttershy/config.dart';
+import 'package:fluttershy/foundation/config.dart';
 
 class Fluttershy extends LeafRenderObjectWidget {
   final Config Function() _config;

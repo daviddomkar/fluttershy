@@ -1,5 +1,5 @@
 name: fluttershy
-description: Experimental game engine written in Dart.
+description: Experimental game engine written in Flutter.
 version: 0.0.1
 author: David Domkář
 
@@ -7,10 +7,10 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
   dartex:
     git: git://github.com/DavidDomkar/dartex.git
+  flutter:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
