@@ -88,11 +88,9 @@ packages:
   dartex:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: b699845da864b8c64a9aea1b18baa40a1ac6cd6e
-      url: "git://github.com/DavidDomkar/dartex.git"
-    source: git
+      name: dartex
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "0.0.1"
   flutter:
     dependency: "direct main"
