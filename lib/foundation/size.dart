@@ -1,9 +1,12 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+class Size {
+  double width;
+  double height;
 
-part 'size.freezed.dart';
+  Size(this.width, this.height);
 
-@freezed
-abstract class Size with _$Size {
-  const factory Size([@Default(0) double width, @Default(0) double height]) =
-      _Size;
+  factory Size.zero() => Size(0, 0);
+
+  Size copyWith({double width, double height}) {
+    return new Size(width ?? this.width, height ?? this.height);
+  }
 }
