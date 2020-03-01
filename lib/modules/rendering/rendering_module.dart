@@ -36,6 +36,8 @@ class RenderingModule extends Module {
   }
 
   void onEvent(Event event, World world) {
+    print('Event: ' + event.toString());
+
     if (event is CreateEvent) {
       _setup(world, event.size);
     } else if (event is ResizeEvent) {
