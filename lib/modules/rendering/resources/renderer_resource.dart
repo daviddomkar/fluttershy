@@ -13,17 +13,24 @@ class RendererResource with Resource {
   OrderedSet<Tuple2<Entity, Function(Canvas, Entity)>> _renderables;
 
   RendererResource(Size screenSize)
-      : _renderables = OrderedSet(Comparing.on((tuple) =>
-            tuple.item1.getComponent<TransformComponent>().position.z));
+      : _renderables = OrderedSet(
+          Comparing.on(
+            (tuple) => tuple.item1
+                .getComponent<TransformComponent>()
+                .worldTransform
+                .position
+                .z,
+          ),
+        );
 
-  void submitRenderableEntity(
-      Entity entity, Function(Canvas, Entity) renderFunction) {
+  void submit(Entity entity, Function(Canvas, Entity) renderFunction) {
     _renderables.add(Tuple2(entity, renderFunction));
   }
 
   void render(Canvas canvas) {
-    _renderables
-        .forEach((renderable) => renderable.item2(canvas, renderable.item1));
+    _renderables.forEach(
+      (renderable) => renderable.item2(canvas, renderable.item1),
+    );
     _renderables.clear();
   }
 }

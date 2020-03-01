@@ -5,6 +5,15 @@ class Transform {
   Position position;
   Scale scale;
 
-  Transform(
-      [Position position = const Position(), Scale scale = const Scale()]);
+  Transform({Position position, Scale scale}) {
+    this.position = position ?? Position.zero();
+    this.scale = scale ?? Scale.zero();
+  }
+
+  Transform copyWith({Position position, Scale scale}) {
+    return Transform(
+      position: position ?? this.position.copyWith(),
+      scale: scale ?? this.scale.copyWith(),
+    );
+  }
 }

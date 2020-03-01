@@ -1,11 +1,12 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+class Scale {
+  double x;
+  double y;
 
-part 'scale.freezed.dart';
+  Scale(this.x, this.y);
 
-@freezed
-abstract class Scale with _$Scale {
-  const factory Scale(
-      [@Default(0) double x,
-      @Default(0) double y,
-      @Default(0) double z]) = _Scale;
+  factory Scale.zero() => Scale(0, 0);
+
+  Scale copyWith({double x, double y}) {
+    return new Scale(x ?? this.x, y ?? this.y);
+  }
 }
