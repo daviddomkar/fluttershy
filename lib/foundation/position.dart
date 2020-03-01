@@ -8,7 +8,7 @@ class Position {
   factory Position.zero() => Position(0, 0, 0);
 
   Position copyWith({double x, double y, double z}) {
-    return new Position(x ?? this.x, y ?? this.y, z ?? this.z);
+    return Position(x ?? this.x, y ?? this.y, z ?? this.z);
   }
 
   Position add(Position position) {

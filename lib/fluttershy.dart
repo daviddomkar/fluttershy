@@ -40,8 +40,6 @@ class _FluttershyState extends State<Fluttershy> {
 
     widget.modules.forEach((bundle) => bundle.components
         .forEach((component) => _world.registerComponent(component)));
-
-    _world.insertResource(EventDispatcher());
   }
 
   @override
@@ -98,16 +96,6 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void performResize() {
     super.performResize();
 
-    if (!_created) {
-      modules.forEach((module) {
-        module.onEvent(
-            CreateEvent(
-              size: Size(constraints.biggest.width, constraints.biggest.height),
-            ),
-            world);
-      });
-    }
-
     modules.forEach((module) {
       module.onEvent(
           ResizeEvent(
@@ -131,6 +119,12 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void attach(PipelineOwner owner) {
     super.attach(owner);
 
+    world.insertResource(EventDispatcher());
+
+    modules.forEach((module) {
+      module.onEvent(CreateEvent(), world);
+    });
+
     _scheduleTick();
     _bindLifecycleListener();
   }
@@ -138,9 +132,14 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   @override
   void detach() {
     super.detach();
+
+    world.destroyEntities();
+    world.destroyResources();
+
     modules.forEach((module) {
       module.onEvent(DestroyEvent(), world);
     });
+
     _unscheduleTick();
     _unbindLifecycleListener();
   }
@@ -197,6 +196,8 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     context.canvas.translate(offset.dx, offset.dy);
     modules.forEach((module) {
       module.onEvent(RenderEvent(canvas: context.canvas), world);
+      context.canvas.restore();
+      context.canvas.save();
     });
     context.canvas.restore();
   }
