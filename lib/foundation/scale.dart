@@ -4,7 +4,7 @@ class Scale {
 
   Scale(this.x, this.y);
 
-  factory Scale.zero() => Scale(0, 0);
+  factory Scale.normal() => Scale(1, 1);
 
   Scale copyWith({double x, double y}) {
     return new Scale(x ?? this.x, y ?? this.y);

@@ -7,7 +7,7 @@ class Transform {
 
   Transform({Position position, Scale scale}) {
     this.position = position ?? Position.zero();
-    this.scale = scale ?? Scale.zero();
+    this.scale = scale ?? Scale.normal();
   }
 
   Transform copyWith({Position position, Scale scale}) {

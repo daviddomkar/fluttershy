@@ -36,23 +36,21 @@ class RenderingModule extends Module {
   }
 
   void onEvent(Event event, World world) {
-    print('Event: ' + event.toString());
-
-    if (event is CreateEvent) {
-      _setup(world, event.size);
-    } else if (event is ResizeEvent) {
+    if (event is ResizeEvent) {
       _resize(world, event.size);
     } else if (event is RenderEvent) {
       _render(world, event.canvas);
     }
   }
 
-  void _setup(World world, Size size) {
-    world.insertResource(RendererResource(size));
-  }
-
   void _resize(World world, Size size) {
-    world.getResource<RendererResource>().screenSize = size;
+    var renderer = world.getResource<RendererResource>();
+
+    if (renderer != null) {
+      renderer.screenSize = size;
+    } else {
+      world.insertResource(RendererResource(size));
+    }
   }
 
   void _render(World world, Canvas canvas) {
