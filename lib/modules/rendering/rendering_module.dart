@@ -1,7 +1,6 @@
 import 'package:dartex/world.dart';
 import 'package:flutter/material.dart' hide Size;
 import 'package:fluttershy/foundation/event.dart';
-import 'package:fluttershy/foundation/events/create_event.dart';
 import 'package:fluttershy/foundation/events/render_event.dart';
 import 'package:fluttershy/foundation/events/resize_event.dart';
 import 'package:fluttershy/foundation/module.dart';
@@ -9,6 +8,7 @@ import 'package:fluttershy/foundation/size.dart';
 import 'package:fluttershy/modules/rendering/components/camera_component.dart';
 import 'package:fluttershy/modules/rendering/components/rectangle_component.dart';
 import 'package:fluttershy/modules/rendering/resources/renderer_resource.dart';
+import 'package:fluttershy/modules/rendering/systems/camera_system.dart';
 import 'package:fluttershy/modules/rendering/systems/rectangle_rendering_system.dart';
 
 class RenderingModule extends Module {
@@ -20,6 +20,7 @@ class RenderingModule extends Module {
           CameraComponent,
           RectangleComponent,
         ], [
+          CameraSystem(),
           RectangleRenderingSystem(),
         ]);
 
@@ -47,9 +48,12 @@ class RenderingModule extends Module {
     var renderer = world.getResource<RendererResource>();
 
     if (renderer != null) {
-      renderer.screenSize = size;
+      renderer.size = size;
     } else {
-      world.insertResource(RendererResource(size));
+      world.insertResource(RendererResource(
+        backgroundColor: _backgroundColor,
+        size: size,
+      ));
     }
   }
 

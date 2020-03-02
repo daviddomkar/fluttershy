@@ -4,7 +4,9 @@ import 'package:fluttershy/foundation/anchor.dart';
 import 'package:fluttershy/foundation/size.dart';
 
 class RectangleComponent with Component {
-  Anchor anchor;
+  RectangleComponent({this.size, this.color, this.anchor});
+
   Size size;
   Color color;
+  Anchor anchor;
 }
