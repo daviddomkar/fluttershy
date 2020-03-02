@@ -2,6 +2,8 @@ import 'package:dartex/resource.dart';
 import 'package:dartex/world.dart';
 import 'package:flutter/material.dart' hide Size, Transform;
 import 'package:flutter/rendering.dart';
+import 'package:fluttershy/foundation/position.dart';
+import 'package:fluttershy/foundation/scale.dart';
 import 'package:fluttershy/foundation/size.dart';
 import 'package:fluttershy/foundation/transform.dart';
 import 'package:fluttershy/modules/transform/components/transform_component.dart';
@@ -10,11 +12,15 @@ import 'package:ordered_set/ordered_set.dart';
 import 'package:tuple/tuple.dart';
 
 class RendererResource with Resource {
-  Size screenSize;
+  final OrderedSet<Tuple2<Entity, Function(Canvas, Transform)>> _renderables;
 
-  OrderedSet<Tuple2<Entity, Function(Canvas, Transform)>> _renderables;
+  Color backgroundColor;
 
-  RendererResource(Size screenSize)
+  Size size;
+  Size viewportSize;
+  Transform transform;
+
+  RendererResource({this.backgroundColor, this.size, this.transform})
       : _renderables = OrderedSet(
           Comparing.on(
             (tuple) => tuple.item1
@@ -24,7 +30,12 @@ class RendererResource with Resource {
                 .z,
           ),
         ) {
-    this.screenSize = screenSize;
+    viewportSize = size;
+    transform = transform ??
+        Transform(
+          position: Position.zero(),
+          scale: Scale.normal(),
+        );
   }
 
   void submit(Entity entity, Function(Canvas, Transform) renderFunction) {
@@ -32,7 +43,9 @@ class RendererResource with Resource {
   }
 
   void render(Canvas canvas) {
-    canvas.drawColor(Colors.black, BlendMode.color);
+    canvas.drawColor(backgroundColor ?? Colors.black, BlendMode.color);
+    canvas.scale(size.height / viewportSize.height);
+    canvas.translate(-this.transform.position.x, this.transform.position.y);
 
     _renderables.forEach((renderable) {
       var transform = renderable.item1
@@ -40,7 +53,7 @@ class RendererResource with Resource {
           .worldTransform
           .copyWith();
 
-      transform.position.y += (screenSize.height - transform.position.y * 2);
+      transform.position.y += (viewportSize.height - transform.position.y * 2);
 
       renderable.item2(canvas, transform);
     });

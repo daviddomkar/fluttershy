@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:fluttershy/foundation/event.dart';
 
 class UpdateEvent with Event {
-  double _dt;
+  double _deltaTime;
 
-  UpdateEvent({@required double dt}) : _dt = dt;
+  UpdateEvent({@required double deltaTime}) : _deltaTime = deltaTime;
 
-  double get dt => _dt;
+  double get deltaTime => _deltaTime;
 }

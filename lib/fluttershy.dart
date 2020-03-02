@@ -107,7 +107,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     // Update on first frame
     if (!_created) {
       modules.forEach((module) {
-        module.onEvent(UpdateEvent(dt: 0), world);
+        module.onEvent(UpdateEvent(deltaTime: 0), world);
       });
 
       world.run();
@@ -175,7 +175,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     }
 
     modules.forEach((module) {
-      module.onEvent(UpdateEvent(dt: dt), world);
+      module.onEvent(UpdateEvent(deltaTime: dt), world);
     });
 
     world.run();

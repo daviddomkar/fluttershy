@@ -1,3 +1,6 @@
-import 'package:fluttershy/modules/transform/components/transform_component.dart';
+import 'package:dartex/component.dart';
+import 'package:fluttershy/foundation/transform.dart';
 
-class PreviousTransformComponent extends TransformComponent {}
+class PreviousTransformComponent with Component {
+  Transform previousTransform;
+}
