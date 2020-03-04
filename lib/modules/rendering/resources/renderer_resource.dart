@@ -2,6 +2,7 @@ import 'package:dartex/resource.dart';
 import 'package:dartex/world.dart';
 import 'package:flutter/material.dart' hide Size, Transform;
 import 'package:flutter/rendering.dart';
+import 'package:fluttershy/foundation/anchor.dart';
 import 'package:fluttershy/foundation/position.dart';
 import 'package:fluttershy/foundation/scale.dart';
 import 'package:fluttershy/foundation/size.dart';
@@ -19,6 +20,7 @@ class RendererResource with Resource {
   Size size;
   Size viewportSize;
   Transform transform;
+  Anchor anchor;
 
   RendererResource({this.backgroundColor, this.size, this.transform})
       : _renderables = OrderedSet(
@@ -44,8 +46,50 @@ class RendererResource with Resource {
 
   void render(Canvas canvas) {
     canvas.drawColor(backgroundColor ?? Colors.black, BlendMode.color);
-    canvas.scale(size.height / viewportSize.height);
-    canvas.translate(-this.transform.position.x, this.transform.position.y);
+
+    var scaleFactorX = (1 / this.transform.scale.x);
+    var scaleFactorY = (1 / this.transform.scale.y);
+
+    if (viewportSize.width == double.infinity &&
+        viewportSize.height != double.infinity) {
+      scaleFactorX *= size.height / viewportSize.height;
+      scaleFactorY *= size.height / viewportSize.height;
+    } else if (viewportSize.width != double.infinity &&
+        viewportSize.height == double.infinity) {
+      scaleFactorX *= size.width / viewportSize.width;
+      scaleFactorY *= size.width / viewportSize.width;
+    } else if (viewportSize.width != double.infinity &&
+        viewportSize.height != double.infinity) {
+      scaleFactorX *= size.width / viewportSize.width;
+      scaleFactorY *= size.height / viewportSize.height;
+    }
+
+    canvas.scale(scaleFactorX, scaleFactorY);
+
+    switch (anchor) {
+      case Anchor.topLeft:
+        break;
+      case Anchor.topCenter:
+        break;
+      case Anchor.topRight:
+        break;
+      case Anchor.centerLeft:
+        break;
+      case Anchor.center:
+        break;
+      case Anchor.centerRight:
+        break;
+      case Anchor.bottomLeft:
+        canvas.translate(
+            -transform.position.x,
+            transform.position.y -
+                (size.height - (size.height / scaleFactorY)));
+        break;
+      case Anchor.bottomCenter:
+        break;
+      case Anchor.bottomRight:
+        break;
+    }
 
     _renderables.forEach((renderable) {
       var transform = renderable.item1
@@ -53,7 +97,7 @@ class RendererResource with Resource {
           .worldTransform
           .copyWith();
 
-      transform.position.y += (viewportSize.height - transform.position.y * 2);
+      transform.position.y += size.height - transform.position.y * 2;
 
       renderable.item2(canvas, transform);
     });
