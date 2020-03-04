@@ -19,6 +19,7 @@ class CameraSystem extends System {
       renderer.viewportSize = camera.size.copyWith();
       renderer.transform.position = transform.position.copyWith();
       renderer.transform.scale = transform.scale.copyWith();
+      renderer.anchor = camera.anchor;
     }
   }
 }
