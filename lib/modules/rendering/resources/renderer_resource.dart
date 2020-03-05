@@ -66,11 +66,6 @@ class RendererResource with Resource {
 
     canvas.scale(scaleFactorX, scaleFactorY);
 
-    print('=============');
-    print(size.height);
-    print(size.height / scaleFactorY);
-    print(transform.position.y);
-
     switch (anchor) {
       case Anchor.topLeft:
         canvas.translate(
@@ -86,16 +81,29 @@ class RendererResource with Resource {
             transform.position.y - size.height);
         break;
       case Anchor.centerLeft:
-        break;
-      case Anchor.center:
-        break;
-      case Anchor.centerRight:
-        break;
-      case Anchor.bottomLeft:
         canvas.translate(
             -transform.position.x,
             transform.position.y -
-                (size.height - (size.height / scaleFactorY)));
+                size.height +
+                (size.height / scaleFactorY) / 2);
+        break;
+      case Anchor.center:
+        canvas.translate(
+            -transform.position.x + (size.width / scaleFactorX) / 2,
+            transform.position.y -
+                size.height +
+                (size.height / scaleFactorY) / 2);
+        break;
+      case Anchor.centerRight:
+        canvas.translate(
+            -transform.position.x + (size.width / scaleFactorX),
+            transform.position.y -
+                size.height +
+                (size.height / scaleFactorY) / 2);
+        break;
+      case Anchor.bottomLeft:
+        canvas.translate(-transform.position.x,
+            transform.position.y - size.height + (size.height / scaleFactorY));
         break;
       case Anchor.bottomCenter:
         canvas.translate(
