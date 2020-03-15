@@ -7,7 +7,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  dartex: ^0.1.5
+  dartex: ^0.1.11
   ordered_set: ^1.1.5
   vector_math: ^2.0.8
   tuple: ^1.0.3

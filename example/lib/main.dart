@@ -1,13 +1,21 @@
+import 'dart:math';
+
 import 'package:dartex/dartex.dart';
-import 'package:flutter/material.dart' hide State, Transform;
+import 'package:flutter/material.dart' hide State, Transform, Size;
 import 'package:fluttershy/fluttershy.dart';
 import 'package:fluttershy/foundation/state.dart';
 import 'package:fluttershy/modules/events/events_module.dart';
 import 'package:fluttershy/modules/transform/transform_module.dart';
+import 'package:fluttershy/modules/time/time_module.dart';
 import 'package:fluttershy/modules/rendering/rendering_module.dart';
+import 'package:fluttershy/modules/rendering/components/rectangle.dart';
+import 'package:fluttershy/modules/rendering/components/camera.dart';
+import 'package:fluttershy/foundation/components/size.dart';
 import 'package:fluttershy/modules/transform/components/transform.dart';
 import 'package:fluttershy/modules/transform/components/translation.dart';
-import 'package:vector_math/vector_math_64.dart' hide Colors;
+import 'package:fluttershy/modules/transform/components/scale.dart';
+
+import 'systems/rectangle_move_system.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,54 +30,44 @@ class MyApp extends StatelessWidget {
       ),
       home: Scaffold(
         body: Fluttershy(
-          defaultState: PilgrimState(),
+          defaultState: ExampleState(),
           modules: [
             EventsModule(),
+            TimeModule(),
             TransformModule(),
             RenderingModule(),
           ],
-          systems: [],
+          systems: [
+            RectangleMoveSystem(),
+          ],
         ),
       ),
     );
   }
 }
 
-class PilgrimState extends State {
+class ExampleState extends State {
   @override
   void onStart(World world) {
     world
         .createEntity()
         .withComponent(Transform())
-        .withComponent(Translation(20, 20, 0))
+        .withComponent(Translation(0, 0, 0))
+        .withComponent(Scale(0.5, 0.5, 1.0))
+        .withComponent(Camera(size: Size(double.infinity, 900)))
         .build();
-  }
 
-  @override
-  void onRender(World world, Canvas canvas) {
-    final query = world.query([Transform, Translation]);
+    final random = Random();
 
-    print(query.entities);
-
-    var camera = Matrix4.identity();
-    var object = Matrix4.identity();
-
-    Vector3 cameraPos = Vector3(20, 300, 0);
-    Vector3 objectPos = Vector3(0, 200, 0);
-
-    object.translate(objectPos);
-    camera.translate(cameraPos);
-
-    camera.invert();
-
-    canvas.transform(camera.storage);
-
-    canvas.drawRect(
-        Rect.fromCenter(
-            center:
-                Offset(object.getTranslation().x, object.getTranslation().y),
-            width: 300,
-            height: 300),
-        Paint()..color = Colors.amber);
+    for (var i = 0; i < 10000; i++) {
+      world
+          .createEntity()
+          .withComponent(Transform())
+          .withComponent(Translation(
+              random.nextDouble() * 1600, random.nextDouble() * 900, 0))
+          .withComponent(Scale(1.0, 1.0, 1.0))
+          .withComponent(Rectangle(color: Colors.blue, size: Size(5, 5)))
+          .build();
+    }
   }
 }
