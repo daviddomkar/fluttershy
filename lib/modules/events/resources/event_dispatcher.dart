@@ -1,7 +1,7 @@
 import 'dart:collection';
 
-import 'package:dartex/resource.dart';
-import 'package:fluttershy/foundation/event.dart';
+import 'package:dartex/dartex.dart';
+import 'package:fluttershy/modules/events/event.dart';
 
 class EventDispatcher with Resource {
   Queue<Event> _queue;

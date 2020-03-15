@@ -1,70 +1,75 @@
 library fluttershy;
 
-import 'package:dartex/system.dart';
-import 'package:dartex/world.dart';
+import 'package:dartex/dartex.dart';
 import 'package:flutter/rendering.dart' hide Size;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart' hide Size;
-import 'package:fluttershy/foundation/event.dart';
-import 'package:fluttershy/foundation/event_dispatcher.dart';
-import 'package:fluttershy/foundation/events/create_event.dart';
-import 'package:fluttershy/foundation/events/destroy_event.dart';
-import 'package:fluttershy/foundation/events/lifecycle_state_change_event.dart';
-import 'package:fluttershy/foundation/events/render_event.dart';
-import 'package:fluttershy/foundation/events/resize_event.dart';
-import 'package:fluttershy/foundation/events/update_event.dart';
+import 'package:fluttershy/foundation/components/size.dart';
 import 'package:fluttershy/foundation/module.dart';
-import 'package:fluttershy/foundation/size.dart';
+import 'package:fluttershy/foundation/state.dart' as fluttershy;
 
 class Fluttershy extends StatefulWidget {
+  final fluttershy.State defaultState;
   final List<Module> modules;
+  final List<System> systems;
 
-  const Fluttershy({Key key, this.modules}) : super(key: key);
+  const Fluttershy({Key key, this.defaultState, this.modules, this.systems})
+      : super(key: key);
 
   @override
   _FluttershyState createState() => _FluttershyState();
 }
 
 class _FluttershyState extends State<Fluttershy> {
-  World _world;
+  World world;
 
   @override
   void initState() {
     super.initState();
 
-    _world = World(
-        systems: widget.modules.fold<List<System>>([], (systems, bundle) {
-      systems.addAll(bundle.systems);
-      return systems;
-    }));
+    final List<System> systems = [
+      ...widget.modules
+          .where((m) => m.priority == ExecutionPriority.before)
+          .fold<List<System>>(List<System>(), (systems, module) {
+        systems.addAll(module.systems);
+        return systems;
+      }),
+      ...widget.systems,
+      ...widget.modules
+          .where((m) => m.priority == ExecutionPriority.after)
+          .fold<List<System>>(List<System>(), (systems, module) {
+        systems.addAll(module.systems);
+        return systems;
+      }),
+    ];
 
-    widget.modules.forEach((bundle) => bundle.components
-        .forEach((component) => _world.registerComponent(component)));
+    world = World(systems: systems);
   }
 
   @override
   Widget build(BuildContext context) {
     return widget.modules.fold(
-      _FluttershyWidget(widget.modules, _world),
+      _FluttershyWidget(widget.defaultState, widget.modules, world),
       (widget, bundle) => bundle.buildMiddleware(
         context,
         widget,
-        _world,
+        world,
       ),
     );
   }
 }
 
 class _FluttershyWidget extends LeafRenderObjectWidget {
+  final fluttershy.State defaultState;
   final List<Module> modules;
   final World world;
 
-  _FluttershyWidget(this.modules, this.world);
+  _FluttershyWidget(this.defaultState, this.modules, this.world);
 
   @override
   RenderBox createRenderObject(BuildContext context) {
     return RenderConstrainedBox(
-        child: _FluttershyRenderBox(context, modules, world),
+        child: _FluttershyRenderBox(context, defaultState, modules, world),
         additionalConstraints: BoxConstraints.expand());
   }
 
@@ -72,22 +77,26 @@ class _FluttershyWidget extends LeafRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, RenderConstrainedBox renderBox) {
     renderBox
-      ..child = _FluttershyRenderBox(context, modules, world)
+      ..child = _FluttershyRenderBox(context, defaultState, modules, world)
       ..additionalConstraints = BoxConstraints.expand();
   }
 }
 
 class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   final BuildContext context;
+  final fluttershy.State defaultState;
   final List<Module> modules;
   final World world;
 
   int _frameCallbackId;
-  bool _created = false;
+  bool _created;
 
-  Duration previous = Duration.zero;
+  Duration _previous;
 
-  _FluttershyRenderBox(this.context, this.modules, this.world);
+  _FluttershyRenderBox(
+      this.context, this.defaultState, this.modules, this.world)
+      : _created = false,
+        _previous = Duration.zero;
 
   @override
   bool get sizedByParent => true;
@@ -96,19 +105,15 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void performResize() {
     super.performResize();
 
-    modules.forEach((module) {
-      module.onEvent(
-          ResizeEvent(
-            size: Size(constraints.biggest.width, constraints.biggest.height),
-          ),
-          world);
-    });
+    final size = Size(constraints.biggest.width, constraints.biggest.height);
+
+    modules.forEach((module) => module.onResize(world, size.copy()));
+    defaultState.onResize(world, size.copy());
 
     // Update on first frame
     if (!_created) {
-      modules.forEach((module) {
-        module.onEvent(UpdateEvent(deltaTime: 0), world);
-      });
+      modules.forEach((module) => module.onUpdate(world, 0));
+      defaultState.onUpdate(world, 0);
 
       world.run();
       _created = true;
@@ -119,11 +124,8 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void attach(PipelineOwner owner) {
     super.attach(owner);
 
-    world.insertResource(EventDispatcher());
-
-    modules.forEach((module) {
-      module.onEvent(CreateEvent(), world);
-    });
+    modules.forEach((module) => module.onStart(world));
+    defaultState.onStart(world);
 
     _scheduleTick();
     _bindLifecycleListener();
@@ -133,12 +135,11 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void detach() {
     super.detach();
 
+    modules.forEach((module) => module.onStop(world));
+    defaultState.onStop(world);
+
     world.destroyEntities();
     world.destroyResources();
-
-    modules.forEach((module) {
-      module.onEvent(DestroyEvent(), world);
-    });
 
     _unscheduleTick();
     _unbindLifecycleListener();
@@ -162,31 +163,20 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   }
 
   void _update(Duration now) {
-    final double dt = _computeDeltaT(now);
+    final double deltaTime = _computeDeltaT(now);
 
-    EventDispatcher dispatcher = world.getResource<EventDispatcher>();
-
-    while (dispatcher.queue.isNotEmpty) {
-      Event event = dispatcher.queue.removeFirst();
-
-      modules.forEach((module) {
-        module.onEvent(event, world);
-      });
-    }
-
-    modules.forEach((module) {
-      module.onEvent(UpdateEvent(deltaTime: dt), world);
-    });
+    modules.forEach((module) => module.onUpdate(world, deltaTime));
+    defaultState.onUpdate(world, deltaTime);
 
     world.run();
   }
 
   double _computeDeltaT(Duration now) {
-    Duration delta = now - previous;
-    if (previous == Duration.zero) {
+    Duration delta = now - _previous;
+    if (_previous == Duration.zero) {
       delta = Duration.zero;
     }
-    previous = now;
+    _previous = now;
     return delta.inMicroseconds / Duration.microsecondsPerSecond;
   }
 
@@ -195,10 +185,11 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     context.canvas.save();
     context.canvas.translate(offset.dx, offset.dy);
     modules.forEach((module) {
-      module.onEvent(RenderEvent(canvas: context.canvas), world);
+      module.onRender(world, context.canvas);
       context.canvas.restore();
       context.canvas.save();
     });
+    defaultState.onRender(world, context.canvas);
     context.canvas.restore();
   }
 
@@ -212,12 +203,17 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    modules.forEach((module) {
-      module.onEvent(
-          LifecycleStateChangeEvent(
-            state: state,
-          ),
-          world);
-    });
+    switch (state) {
+      case AppLifecycleState.resumed:
+        modules.forEach((module) => module.onResume(world));
+        defaultState.onResume(world);
+        break;
+      case AppLifecycleState.paused:
+        modules.forEach((module) => module.onPause(world));
+        defaultState.onPause(world);
+        break;
+      default:
+        break;
+    }
   }
 }
