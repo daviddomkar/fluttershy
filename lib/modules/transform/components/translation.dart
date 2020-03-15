@@ -1,5 +1,5 @@
 import 'package:dartex/dartex.dart';
-import 'package:vector_math/vector_math.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 class Translation with Component<Translation> {
   final Vector3 vector;
