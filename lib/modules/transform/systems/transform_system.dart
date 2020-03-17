@@ -1,33 +1,59 @@
 import 'package:dartex/dartex.dart';
-import 'package:fluttershy/foundation/components/size.dart';
-import 'package:fluttershy/foundation/resources/dimensions.dart';
+import 'package:fluttershy/foundation/parent.dart';
+import 'package:fluttershy/foundation/size.dart';
+import 'package:fluttershy/modules/transform/components/local_to_parent.dart';
+import 'package:fluttershy/modules/transform/components/local_to_world.dart';
 import 'package:fluttershy/modules/transform/components/scale.dart';
-import 'package:fluttershy/modules/transform/components/transform.dart';
 import 'package:fluttershy/modules/transform/components/translation.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 class TransformSystem extends System {
   TransformSystem()
       : super(type: [
-          Transform,
+          LocalToWorld,
           [Translation, Scale]
         ]);
 
   @override
   void run(World world, List<Entity> entities) {
-    Size screenSize = world.getResource<Dimensions>().screenSize;
-
     entities.forEach((entity) {
-      Transform transform = entity.getComponent<Transform>();
-      Vector3 translation =
-          entity.getComponent<Translation>()?.vector?.clone() ??
-              transform.matrix.getTranslation();
-      Vector3 scale = entity.getComponent<Scale>()?.vector ?? Vector3.all(1);
+      final worldTransform = entity.getComponent<LocalToWorld>();
+      final translation = entity.getComponent<Translation>();
+      final scale = entity.getComponent<Scale>();
 
-      translation.add(Vector3(0, screenSize.height - translation.y * 2, 0));
+      if (translation != null && translation.isDirty) {
+        final parentTransform = entity.getComponent<LocalToParent>();
+        final parent = entity.getComponent<Parent>();
 
-      transform.matrix.setFromTranslationRotationScale(
-          translation, Quaternion.identity(), scale);
+        if (parent != null && parentTransform != null) {
+          parentTransform.matrix.setTranslation(translation.vector..y);
+          parentTransform.matrix
+              .setTranslation(parentTransform.matrix.getTranslation()..y *= -1);
+        } else {
+          worldTransform.matrix.setTranslation(translation.vector);
+          worldTransform.matrix
+              .setTranslation(worldTransform.matrix.getTranslation()..y *= -1);
+        }
+
+        translation.makeClean();
+      }
+
+      if (scale != null && scale.isDirty) {
+        final parentTransform = entity.getComponent<LocalToParent>();
+        final parent = entity.getComponent<Parent>();
+
+        if (parent != null && parentTransform != null) {
+          parentTransform.matrix.setEntry(0, 0, scale.vector.x);
+          parentTransform.matrix.setEntry(1, 1, scale.vector.y);
+          parentTransform.matrix.setEntry(2, 2, scale.vector.z);
+        } else {
+          worldTransform.matrix.setEntry(0, 0, scale.vector.x);
+          worldTransform.matrix.setEntry(1, 1, scale.vector.y);
+          worldTransform.matrix.setEntry(2, 2, scale.vector.z);
+        }
+
+        scale.makeClean();
+      }
     });
   }
 }

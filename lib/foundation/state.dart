@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:dartex/dartex.dart';
-import 'package:fluttershy/foundation/components/size.dart';
+import 'package:fluttershy/foundation/size.dart';
 
 abstract class State {
   void onStart(World world) {}

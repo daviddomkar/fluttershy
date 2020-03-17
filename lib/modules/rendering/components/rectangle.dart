@@ -1,6 +1,6 @@
 import 'package:dartex/dartex.dart';
 import 'package:flutter/widgets.dart' hide Size;
-import 'package:fluttershy/foundation/components/size.dart';
+import 'package:fluttershy/foundation/size.dart';
 
 class Rectangle with Component<Rectangle> {
   final Color color;

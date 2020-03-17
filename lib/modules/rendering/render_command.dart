@@ -1,4 +1,4 @@
-import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart' hide Size;
 
 abstract class RenderCommand {
   final double priority;

@@ -1,6 +1,6 @@
 import 'package:dartex/dartex.dart';
-import 'package:flutter/foundation.dart' hide Size;
-import 'package:fluttershy/foundation/components/size.dart';
+import 'package:flutter/foundation.dart';
+import 'package:fluttershy/foundation/size.dart';
 
 class Camera with Component<Camera> {
   final Size size;

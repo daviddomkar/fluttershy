@@ -4,7 +4,7 @@ import 'package:dartex/dartex.dart';
 import 'package:flutter/rendering.dart' hide Size;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart' hide Size;
-import 'package:fluttershy/foundation/components/size.dart';
+import 'package:fluttershy/foundation/size.dart';
 import 'package:fluttershy/foundation/module.dart';
 import 'package:fluttershy/foundation/state.dart' as fluttershy;
 
