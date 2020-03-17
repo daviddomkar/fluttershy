@@ -1,16 +1,15 @@
-import 'dart:ui';
+import 'dart:ui' hide Size;
 
 import 'package:dartex/dartex.dart';
-import 'package:fluttershy/foundation/components/anchor.dart';
+import 'package:fluttershy/foundation/anchor.dart';
 import 'package:fluttershy/modules/rendering/components/rectangle.dart';
 import 'package:fluttershy/modules/rendering/render_command.dart';
 import 'package:fluttershy/modules/rendering/resources/render_command_buffer.dart';
-import 'package:fluttershy/modules/transform/components/transform.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:fluttershy/modules/transform/components/local_to_world.dart';
 
 class RectangleRenderCommand extends RenderCommand {
   final Rectangle rectangle;
-  final Transform transform;
+  final LocalToWorld transform;
   final Anchor anchor;
 
   RectangleRenderCommand({this.rectangle, this.transform, this.anchor})
@@ -34,22 +33,24 @@ class RectangleRenderCommand extends RenderCommand {
 }
 
 class RectangleRenderingSystem extends System {
-  RectangleRenderingSystem() : super(type: [Rectangle, Transform]);
+  RectangleRenderingSystem() : super(type: [Rectangle, LocalToWorld]);
 
   @override
   void run(World world, List<Entity> entities) {
     final commandBuffer = world.getResource<RenderCommandBuffer>();
 
     entities.forEach(
-      (entity) => commandBuffer.submitCommand(
-        RectangleRenderCommand(
-          rectangle: entity.getComponent<Rectangle>(),
-          transform: entity.getComponent<Transform>(),
-          anchor: entity.hasComponent<Anchor>()
-              ? entity.getComponent<Anchor>()
-              : null,
-        ),
-      ),
+      (entity) {
+        commandBuffer.submitCommand(
+          RectangleRenderCommand(
+            rectangle: entity.getComponent<Rectangle>(),
+            transform: entity.getComponent<LocalToWorld>(),
+            anchor: entity.hasComponent<Anchor>()
+                ? entity.getComponent<Anchor>()
+                : null,
+          ),
+        );
+      },
     );
   }
 }
