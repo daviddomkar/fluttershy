@@ -20,6 +20,9 @@ class ParentTransformSystem extends System {
 
       // TODO improve this, not sure of possible side effects
 
+      // print(parentTransform.matrix);
+      // print(parent.entity.getComponent<LocalToWorld>().matrix);
+
       worldTransform.matrix.setFrom(
           parent.entity.getComponent<LocalToWorld>().matrix *
               parentTransform.matrix);

@@ -16,6 +16,8 @@ class TransformSystem extends System {
 
   @override
   void run(World world, List<Entity> entities) {
+    // print(entities.length);
+
     entities.forEach((entity) {
       final worldTransform = entity.getComponent<LocalToWorld>();
       final translation = entity.getComponent<Translation>();
@@ -26,9 +28,10 @@ class TransformSystem extends System {
         final parent = entity.getComponent<Parent>();
 
         if (parent != null && parentTransform != null) {
-          parentTransform.matrix.setTranslation(translation.vector..y);
+          parentTransform.matrix.setTranslation(translation.vector);
           parentTransform.matrix
               .setTranslation(parentTransform.matrix.getTranslation()..y *= -1);
+          // print(translation.vector);
         } else {
           worldTransform.matrix.setTranslation(translation.vector);
           worldTransform.matrix

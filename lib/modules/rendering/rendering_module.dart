@@ -4,9 +4,11 @@ import 'package:fluttershy/foundation/anchor.dart';
 import 'package:fluttershy/foundation/size.dart';
 import 'package:fluttershy/foundation/module.dart';
 import 'package:fluttershy/modules/rendering/components/camera.dart';
+import 'package:fluttershy/modules/rendering/resources/asset_bundle.dart';
 import 'package:fluttershy/modules/rendering/resources/render_command_buffer.dart';
 import 'package:fluttershy/modules/rendering/resources/screen_dimensions.dart';
 import 'package:fluttershy/modules/rendering/systems/rectangle_rendering_system.dart';
+import 'package:fluttershy/modules/rendering/systems/rive_rendering_system.dart';
 import 'package:fluttershy/modules/transform/components/local_to_world.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
@@ -19,6 +21,7 @@ class RenderingModule extends Module {
           priority: ExecutionPriority.after,
           systems: [
             RectangleRenderingSystem(),
+            RiveRenderingSystem(),
           ],
         );
 
@@ -35,7 +38,8 @@ class RenderingModule extends Module {
   }
 
   @override
-  void onStart(World world) {
+  void onStart(BuildContext context, World world) {
+    world.insertResource(AssetBundle(DefaultAssetBundle.of(context)));
     world.insertResource(RenderCommandBuffer());
     world.insertResource(ScreenDimensions());
   }
@@ -52,8 +56,6 @@ class RenderingModule extends Module {
     canvas.transform(_computeCameraTransform(world).storage);
 
     final commandBuffer = world.getResource<RenderCommandBuffer>();
-
-    Size screenSize = world.getResource<ScreenDimensions>().size;
 
     commandBuffer.commands.forEach((command) {
       command.render(canvas);
@@ -103,39 +105,66 @@ class RenderingModule extends Module {
       switch (anchor) {
         case Anchor.topLeft:
           transform.setTranslationRaw(
-              translation.x, translation.y, translation.z);
+            scaleX * translation.x,
+            scaleY * translation.y,
+            translation.z,
+          );
           break;
         case Anchor.topCenter:
-          transform.setTranslationRaw(translation.x + screenSize.width / 2,
-              translation.y, translation.z);
+          transform.setTranslationRaw(
+            scaleX * translation.x + screenSize.width / 2,
+            scaleY * translation.y,
+            translation.z,
+          );
           break;
         case Anchor.topRight:
           transform.setTranslationRaw(
-              translation.x + screenSize.width, translation.y, translation.z);
+            scaleX * translation.x + screenSize.width,
+            scaleY * translation.y,
+            translation.z,
+          );
           break;
         case Anchor.centerLeft:
-          transform.setTranslationRaw(translation.x,
-              translation.y + screenSize.height / 2, translation.z);
+          transform.setTranslationRaw(
+            scaleX * translation.x,
+            scaleY * translation.y + screenSize.height / 2,
+            translation.z,
+          );
           break;
         case Anchor.center:
-          transform.setTranslationRaw(translation.x + screenSize.width / 2,
-              translation.y + screenSize.height / 2, translation.z);
+          transform.setTranslationRaw(
+            scaleX * translation.x + screenSize.width / 2,
+            scaleY * translation.y + screenSize.height / 2,
+            translation.z,
+          );
           break;
         case Anchor.centerRight:
-          transform.setTranslationRaw(translation.x + screenSize.width,
-              translation.y + screenSize.height / 2, translation.z);
+          transform.setTranslationRaw(
+            scaleX * translation.x + screenSize.width,
+            scaleY * translation.y + screenSize.height / 2,
+            translation.z,
+          );
           break;
         case Anchor.bottomLeft:
           transform.setTranslationRaw(
-              translation.x, translation.y + screenSize.height, translation.z);
+            scaleX * translation.x,
+            scaleY * translation.y + screenSize.height,
+            translation.z,
+          );
           break;
         case Anchor.bottomCenter:
-          transform.setTranslationRaw(translation.x + screenSize.width / 2,
-              translation.y + screenSize.height, translation.z);
+          transform.setTranslationRaw(
+            scaleX * translation.x + screenSize.width / 2,
+            scaleY * translation.y + screenSize.height,
+            translation.z,
+          );
           break;
         case Anchor.bottomRight:
-          transform.setTranslationRaw(translation.x + screenSize.width,
-              translation.y + screenSize.height, translation.z);
+          transform.setTranslationRaw(
+            scaleX * translation.x + screenSize.width,
+            scaleY * translation.y + screenSize.height,
+            translation.z,
+          );
           break;
       }
 
