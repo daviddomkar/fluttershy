@@ -1,4 +1,5 @@
 import 'package:dartex/dartex.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fluttershy/foundation/module.dart';
 import 'package:fluttershy/modules/time/resources/timer.dart';
 
@@ -10,7 +11,7 @@ class TimeModule extends Module {
         );
 
   @override
-  void onStart(World world) {
+  void onStart(BuildContext context, World world) {
     world.insertResource(Timer());
   }
 

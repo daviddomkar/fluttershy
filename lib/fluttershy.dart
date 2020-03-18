@@ -124,8 +124,8 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void attach(PipelineOwner owner) {
     super.attach(owner);
 
-    modules.forEach((module) => module.onStart(world));
-    defaultState.onStart(world);
+    modules.forEach((module) => module.onStart(context, world));
+    defaultState.onStart(context, world);
 
     _scheduleTick();
     _bindLifecycleListener();

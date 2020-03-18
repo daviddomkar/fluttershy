@@ -9,9 +9,11 @@ import 'package:fluttershy/modules/transform/transform_module.dart';
 import 'package:fluttershy/modules/time/time_module.dart';
 import 'package:fluttershy/modules/rendering/rendering_module.dart';
 import 'package:fluttershy/modules/rendering/components/rectangle.dart';
+import 'package:fluttershy/modules/rendering/components/rive.dart';
 import 'package:fluttershy/modules/rendering/components/camera.dart';
 import 'package:fluttershy/foundation/size.dart';
 import 'package:fluttershy/foundation/parent.dart';
+import 'package:fluttershy/foundation/anchor.dart';
 import 'package:fluttershy/modules/transform/components/local_to_world.dart';
 import 'package:fluttershy/modules/transform/components/local_to_parent.dart';
 import 'package:fluttershy/modules/transform/components/translation.dart';
@@ -49,12 +51,8 @@ class MyApp extends StatelessWidget {
 }
 
 class ExampleState extends State {
-  Entity parent;
-  Entity child;
-  Entity child2;
-
   @override
-  void onStart(World world) {
+  void onStart(BuildContext context, World world) {
     world
         .createEntity()
         .withComponent(LocalToWorld())
@@ -63,36 +61,33 @@ class ExampleState extends State {
         .withComponent(Camera(size: Size(double.infinity, 900)))
         .build();
 
-    parent = world
+    final scale = 1.0;
+
+    world
         .createEntity()
         .withComponent(LocalToWorld())
         .withComponent(Translation(0, 0, 0))
-        .withComponent(Scale(1.0, 1.0, 1.0))
-        .withComponent(Rectangle(color: Colors.blue, size: Size(50, 50)))
+        .withComponent(Scale(scale, scale, 1.0))
+        .withComponent(Rectangle(color: Colors.amber, size: Size(200, 200)))
+        .withComponent(Anchor.bottomLeft)
         .build();
 
-    child = world
+    world
         .createEntity()
         .withComponent(LocalToWorld())
-        .withComponent(LocalToParent())
-        .withComponent(Parent(entity: parent))
-        .withComponent(Scale(1.0, 1.0, 1.0))
-        .withComponent(Rectangle(color: Colors.amber, size: Size(50, 50)))
+        .withComponent(Translation(0, 200 * scale, 0))
+        .withComponent(Scale(scale, scale, 1.0))
+        .withComponent(Rectangle(color: Colors.green, size: Size(200, 200)))
+        .withComponent(Anchor.bottomLeft)
         .build();
 
-    child2 = world
+    world
         .createEntity()
         .withComponent(LocalToWorld())
-        .withComponent(LocalToParent())
-        .withComponent(Parent(entity: parent))
-        .withComponent(Translation(100, 100, 0))
-        .withComponent(Scale(1.0, 1.0, 1.0))
-        .withComponent(Rectangle(color: Colors.green, size: Size(50, 50)))
+        .withComponent(Translation(0, 0, 0))
+        .withComponent(Scale(scale, scale, 1.0))
+        .withComponent(
+            Rive(fileName: 'assets/log.flr', size: Size(200, 200 * 2.0)))
         .build();
-  }
-
-  @override
-  void onUpdate(World world, double deltaTime) {
-    parent.getComponent<Translation>().x += deltaTime * 5;
   }
 }
