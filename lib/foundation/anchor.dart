@@ -1,4 +1,5 @@
-import 'package:dartex/dartex.dart';
+import 'package:fluttershy/foundation/copyable.dart';
+import 'package:fluttershy/foundation/node.dart';
 
 class LTRB {
   double left;
@@ -9,7 +10,7 @@ class LTRB {
   LTRB(this.left, this.top, this.right, this.bottom);
 }
 
-class Anchor with Component<Anchor> {
+class Anchor with Copyable<Anchor> {
   final String name;
   const Anchor._(this.name);
 
@@ -57,4 +58,8 @@ class Anchor with Component<Anchor> {
         return LTRB(x - width, y - height, x, y);
     }
   }
+}
+
+mixin Anchorable on Node {
+  Anchor anchor = Anchor.bottomLeft;
 }

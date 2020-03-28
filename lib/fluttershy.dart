@@ -1,19 +1,19 @@
 library fluttershy;
 
-import 'package:dartex/dartex.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' hide Size;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart' hide Size;
+import 'package:fluttershy/foundation/events/app_lifecycle_event.dart';
+import 'package:fluttershy/foundation/events/resize_event.dart';
 import 'package:fluttershy/foundation/size.dart';
-import 'package:fluttershy/foundation/module.dart';
-import 'package:fluttershy/foundation/state.dart' as fluttershy;
+import 'package:fluttershy/foundation/scene.dart';
 
 class Fluttershy extends StatefulWidget {
-  final fluttershy.State defaultState;
-  final List<Module> modules;
-  final List<System> systems;
+  final Scene defaultScene;
+  final Color backgroundColor;
 
-  const Fluttershy({Key key, this.defaultState, this.modules, this.systems})
+  const Fluttershy({Key key, this.defaultScene, this.backgroundColor})
       : super(key: key);
 
   @override
@@ -21,55 +21,37 @@ class Fluttershy extends StatefulWidget {
 }
 
 class _FluttershyState extends State<Fluttershy> {
-  World world;
-
   @override
   void initState() {
     super.initState();
-
-    final List<System> systems = [
-      ...widget.modules
-          .where((m) => m.priority == ExecutionPriority.before)
-          .fold<List<System>>(List<System>(), (systems, module) {
-        systems.addAll(module.systems);
-        return systems;
-      }),
-      ...widget.systems,
-      ...widget.modules
-          .where((m) => m.priority == ExecutionPriority.after)
-          .fold<List<System>>(List<System>(), (systems, module) {
-        systems.addAll(module.systems);
-        return systems;
-      }),
-    ];
-
-    world = World(systems: systems);
   }
 
   @override
   Widget build(BuildContext context) {
-    return widget.modules.fold(
-      _FluttershyWidget(widget.defaultState, widget.modules, world),
-      (widget, bundle) => bundle.buildMiddleware(
-        context,
-        widget,
-        world,
+    return GestureDetector(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Container(
+            color: widget.backgroundColor ?? Colors.black,
+            child: _FluttershyWidget(
+                widget.defaultScene, widget.backgroundColor ?? Colors.black),
+          );
+        },
       ),
     );
   }
 }
 
 class _FluttershyWidget extends LeafRenderObjectWidget {
-  final fluttershy.State defaultState;
-  final List<Module> modules;
-  final World world;
+  final Scene defaultScene;
+  final Color backgroundColor;
 
-  _FluttershyWidget(this.defaultState, this.modules, this.world);
+  _FluttershyWidget(this.defaultScene, this.backgroundColor);
 
   @override
   RenderBox createRenderObject(BuildContext context) {
     return RenderConstrainedBox(
-        child: _FluttershyRenderBox(context, defaultState, modules, world),
+        child: _FluttershyRenderBox(context, defaultScene, backgroundColor),
         additionalConstraints: BoxConstraints.expand());
   }
 
@@ -77,24 +59,22 @@ class _FluttershyWidget extends LeafRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, RenderConstrainedBox renderBox) {
     renderBox
-      ..child = _FluttershyRenderBox(context, defaultState, modules, world)
+      ..child = _FluttershyRenderBox(context, defaultScene, backgroundColor)
       ..additionalConstraints = BoxConstraints.expand();
   }
 }
 
 class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   final BuildContext context;
-  final fluttershy.State defaultState;
-  final List<Module> modules;
-  final World world;
+  final Scene defaultScene;
+  final Color backgroundColor;
 
   int _frameCallbackId;
   bool _created;
 
   Duration _previous;
 
-  _FluttershyRenderBox(
-      this.context, this.defaultState, this.modules, this.world)
+  _FluttershyRenderBox(this.context, this.defaultScene, this.backgroundColor)
       : _created = false,
         _previous = Duration.zero;
 
@@ -107,15 +87,11 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
     final size = Size(constraints.biggest.width, constraints.biggest.height);
 
-    modules.forEach((module) => module.onResize(world, size.copy()));
-    defaultState.onResize(world, size.copy());
+    defaultScene.event(ResizeEvent(size: size));
 
     // Update on first frame
     if (!_created) {
-      modules.forEach((module) => module.onUpdate(world, 0));
-      defaultState.onUpdate(world, 0);
-
-      world.run();
+      defaultScene.update(0);
       _created = true;
     }
   }
@@ -124,8 +100,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void attach(PipelineOwner owner) {
     super.attach(owner);
 
-    modules.forEach((module) => module.onStart(context, world));
-    defaultState.onStart(context, world);
+    defaultScene.setup(context);
 
     _scheduleTick();
     _bindLifecycleListener();
@@ -135,14 +110,10 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void detach() {
     super.detach();
 
-    modules.forEach((module) => module.onStop(world));
-    defaultState.onStop(world);
-
-    world.destroyEntities();
-    world.destroyResources();
-
     _unscheduleTick();
     _unbindLifecycleListener();
+
+    defaultScene.destroy(context);
   }
 
   void _scheduleTick() {
@@ -165,10 +136,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void _update(Duration now) {
     final double deltaTime = _computeDeltaT(now);
 
-    modules.forEach((module) => module.onUpdate(world, deltaTime));
-    defaultState.onUpdate(world, deltaTime);
-
-    world.run();
+    defaultScene.update(deltaTime);
   }
 
   double _computeDeltaT(Duration now) {
@@ -183,13 +151,16 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   @override
   void paint(PaintingContext context, Offset offset) {
     context.canvas.save();
+    context.canvas.drawColor(backgroundColor, BlendMode.color);
     context.canvas.translate(offset.dx, offset.dy);
-    modules.forEach((module) {
-      module.onRender(world, context.canvas);
-      context.canvas.restore();
-      context.canvas.save();
+
+    if (defaultScene.root.hasCamera) {
+      defaultScene.root.camera.onRender(context.canvas);
+    }
+
+    defaultScene.root.orderedNodes.forEach((node) {
+      node.onRender(context.canvas);
     });
-    defaultState.onRender(world, context.canvas);
     context.canvas.restore();
   }
 
@@ -203,17 +174,6 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        modules.forEach((module) => module.onResume(world));
-        defaultState.onResume(world);
-        break;
-      case AppLifecycleState.paused:
-        modules.forEach((module) => module.onPause(world));
-        defaultState.onPause(world);
-        break;
-      default:
-        break;
-    }
+    defaultScene.event(AppLifecycleEvent(state: state));
   }
 }
