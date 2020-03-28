@@ -1,6 +1,7 @@
-import 'package:dartex/dartex.dart';
+import 'package:fluttershy/foundation/copyable.dart';
+import 'package:fluttershy/foundation/node.dart';
 
-class Size with Component<Size> {
+class Size with Copyable<Size> {
   double width;
   double height;
 
@@ -17,4 +18,8 @@ class Size with Component<Size> {
   }
 
   static Size get zero => Size(0, 0);
+}
+
+mixin Sizable on Node {
+  Size size = Size(0, 0);
 }
