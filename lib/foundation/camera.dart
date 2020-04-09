@@ -19,7 +19,7 @@ class Camera extends Node with Sizable, Anchorable {
 
   @override
   void onRender(Canvas canvas) {
-    final transform = this.transform.clone();
+    final transform = this.worldTransform.clone();
     final screenSize = screenDimensions.size;
     final size = this.size.copy();
 
@@ -46,7 +46,7 @@ class Camera extends Node with Sizable, Anchorable {
       size.height = screenSize.height;
     }
 
-    transform.scale(scaleX, scaleY, 1);
+    transform.scale(scaleX, scaleY);
 
     final translation = transform.getTranslation();
     final anchor = this.anchor ?? Anchor.bottomLeft;
