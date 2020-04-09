@@ -49,8 +49,11 @@ class ExampleScene extends Scene {
       anchor: Anchor.center,
     );
 
+    camera.transform.translate(200.0);
+
     root.attachChild(camera);
-    root.attachChild(rectangle);
-    root.attachChild(rive);
+
+    camera.attachChild(rectangle);
+    camera.attachChild(rive);
   }
 }

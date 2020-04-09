@@ -54,70 +54,70 @@ class Rive extends Node with Sizable, Anchorable {
 
   @override
   void onUpdate(double deltaTime) {
-    if (loaded) {
+    if (loaded && picture == null) {
       final translation = worldTransform.getTranslation();
 
       final r = PictureRecorder();
       final c = Canvas(r);
 
       final scaleX = size.width / artboard.width * worldTransform.getRow(0).x;
-      final scaleY = size.width / artboard.width * worldTransform.getRow(1).y;
+      final scaleY = size.height / artboard.height * worldTransform.getRow(1).y;
 
       c.scale(scaleX, scaleY);
 
       switch (anchor) {
         case Anchor.topLeft:
           c.translate(
-            scaleX * translation.x,
-            scaleY * translation.y,
+            1 / scaleX * translation.x,
+            1 / scaleY * translation.y,
           );
           break;
         case Anchor.topCenter:
           c.translate(
-            scaleX * translation.x - artboard.width / 2,
-            scaleY * translation.y,
+            1 / scaleX * translation.x - artboard.width / 2,
+            1 / scaleY * translation.y,
           );
           break;
         case Anchor.topRight:
           c.translate(
-            scaleX * translation.x - artboard.width,
-            scaleY * translation.y,
+            1 / scaleX * translation.x - artboard.width,
+            1 / scaleY * translation.y,
           );
           break;
         case Anchor.centerLeft:
           c.translate(
-            scaleX * translation.x,
-            scaleY * translation.y - artboard.height / 2,
+            1 / scaleX * translation.x,
+            1 / scaleY * translation.y - artboard.height / 2,
           );
           break;
         case Anchor.center:
           c.translate(
-            scaleX * translation.x - artboard.width / 2,
-            scaleY * translation.y - artboard.height / 2,
+            1 / scaleX * translation.x - artboard.width / 2,
+            1 / scaleY * translation.y - artboard.height / 2,
           );
           break;
         case Anchor.centerRight:
           c.translate(
-            scaleX * translation.x - artboard.width,
-            scaleY * translation.y - artboard.height / 2,
+            1 / scaleX * translation.x - artboard.width,
+            1 / scaleY * translation.y - artboard.height / 2,
           );
           break;
         case Anchor.bottomLeft:
           c.translate(
-            scaleX * translation.x,
-            scaleY * translation.y - artboard.height,
+            1 / scaleX * translation.x,
+            1 / scaleY * translation.y - artboard.height,
           );
           break;
         case Anchor.bottomCenter:
           c.translate(
-            scaleX * translation.x - artboard.width / 2,
-            scaleY * translation.y - artboard.height,
+            1 / scaleX * translation.x - artboard.width / 2,
+            1 / scaleY * translation.y - artboard.height,
           );
           break;
         case Anchor.bottomRight:
           c.translate(
-            scaleX * translation.x - artboard.width,
-            scaleY * translation.y - artboard.height,
+            1 / scaleX * translation.x - artboard.width,
+            1 / scaleY * translation.y - artboard.height,
           );
           break;
       }

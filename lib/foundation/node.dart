@@ -20,23 +20,43 @@ abstract class Node {
         _transform = Matrix4.identity();
 
   void attachChild(Node child) {
-    _root.orderedNodes.add(child);
     _children.add(child);
-
-    child._root = _root;
     child._parent = this;
 
+    if (hasRoot) {
+      _attachChildRecursive(child);
+    }
+  }
+
+  void _attachChildRecursive(Node child) {
+    if (child is Camera) {
+      _root._cameras.add(child);
+    } else {
+      _root._orderedNodes.add(child);
+    }
+    child._root = root;
     child.onAttach();
+    child.children.forEach((child) => _attachChildRecursive(child));
   }
 
   void detachChild(Node child) {
-    child.onDetach();
+    if (hasRoot) {
+      _detachChildRecursive(child);
+    }
 
     child._parent = null;
-    child._root = null;
-
     _children.remove(child);
-    _root.orderedNodes.remove(child);
+  }
+
+  void _detachChildRecursive(Node child) {
+    child.children.forEach((child) => _detachChildRecursive(child));
+    child.onDetach();
+    child._root = null;
+    if (child is Camera) {
+      _root._cameras.remove(child);
+    } else {
+      _root._orderedNodes.remove(child);
+    }
   }
 
   void detachChildren() {
@@ -63,11 +83,29 @@ abstract class Node {
     _children.forEach((child) => child.onEvent(event));
   }
 
+  void translate(double x, [double y = 0, double z = 0]) {
+    transform.translate(
+      x / transform.getRow(0).x,
+      y / transform.getRow(1).y,
+      z / transform.getRow(2).z,
+    );
+  }
+
   bool get hasChildren => _children.isNotEmpty;
   bool get hasParent => _parent != null;
+  bool get hasRoot => _root != null;
 
+  List<Node> get children => _children;
   Node get parent => _parent;
   RootNode get root => _root;
+
+  Vector3 get translation => transform.getTranslation();
+
+  Vector3 get scale => Vector3(
+        transform.getRow(0).x,
+        transform.getRow(1).y,
+        transform.getRow(2).z,
+      );
 
   Matrix4 get transform => _transform;
   Matrix4 get worldTransform {
@@ -88,38 +126,8 @@ class RootNode extends Node {
       : _orderedNodes = OrderedSet(
             Comparing.on((node) => node.worldTransform.getTranslation().z)),
         _resources = HashMap(),
-        _cameras = List();
-
-  @override
-  void attachChild(Node child) {
-    _children.add(child);
-
-    if (child is Camera) {
-      _cameras.add(child);
-    } else {
-      _orderedNodes.add(child);
-    }
-
-    child._root = this;
-    child._parent = this;
-
-    child.onAttach();
-  }
-
-  @override
-  void detachChild(Node child) {
-    child.onDetach();
-
-    child._parent = null;
-    child._root = null;
-
-    if (child is Camera) {
-      _cameras.remove(child);
-    } else {
-      _orderedNodes.remove(child);
-    }
-
-    _children.remove(child);
+        _cameras = List() {
+    _root = this;
   }
 
   void addResource<T extends Resource>(T resource) {
