@@ -1,9 +1,13 @@
 # Fluttershy
 
-A Game Engine. In Flutter. Which no one asked for.
+Low level game-engine-like interface for flutter games. All this does is exposing Backend class which you can extend and override setup, update, event, render and destroy methods to do your own thing.
 
-## Motivation
+I am planning on making ready made backends in separate packages so you can use what is the best fit for your game or implement your own solution.
 
-I made this for my own purposes while developing a 2D games with Flutter. I was inspired by Flame (Flutter game engine) so I tried to make something on my own.
+Current official backends:
 
-#### NOTE: This project is not production ready and probably never will be. It is just an experiment. However, I am open to some feedback and possible improvements.
+**fluttershy_backend_dartex**: ECS-like backend using my own dartex ECS package [WIP, Experimental]
+
+I am also planning on implementing node based backend similar to how Godot engine functions.
+
+You can also create your own backend and share it as a package. I might even add it to the list if you make a pull request.

@@ -1,6 +1,5 @@
 import 'package:flutter/scheduler.dart';
-import 'package:fluttershy/foundation/event.dart';
-import 'package:fluttershy/foundation/size.dart';
+import 'package:fluttershy/event.dart';
 
 class AppLifecycleEvent with Event {
   final AppLifecycleState state;

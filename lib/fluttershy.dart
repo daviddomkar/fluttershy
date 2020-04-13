@@ -1,19 +1,18 @@
 library fluttershy;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Size;
 import 'package:flutter/rendering.dart' hide Size;
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/widgets.dart' hide Size;
-import 'package:fluttershy/foundation/events/app_lifecycle_event.dart';
-import 'package:fluttershy/foundation/events/resize_event.dart';
-import 'package:fluttershy/foundation/size.dart';
-import 'package:fluttershy/foundation/scene.dart';
+import 'package:fluttershy/backend.dart';
+import 'package:fluttershy/events/app_lifecycle_event.dart';
+import 'package:fluttershy/events/resize_event.dart';
+import 'package:fluttershy/size.dart';
 
 class Fluttershy extends StatefulWidget {
-  final Scene defaultScene;
+  final Backend backend;
   final Color backgroundColor;
 
-  const Fluttershy({Key key, this.defaultScene, this.backgroundColor})
+  const Fluttershy({Key key, this.backend, this.backgroundColor})
       : super(key: key);
 
   @override
@@ -34,7 +33,7 @@ class _FluttershyState extends State<Fluttershy> {
           return Container(
             color: widget.backgroundColor ?? Colors.black,
             child: _FluttershyWidget(
-                widget.defaultScene, widget.backgroundColor ?? Colors.black),
+                widget.backend, widget.backgroundColor ?? Colors.black),
           );
         },
       ),
@@ -43,15 +42,15 @@ class _FluttershyState extends State<Fluttershy> {
 }
 
 class _FluttershyWidget extends LeafRenderObjectWidget {
-  final Scene defaultScene;
+  final Backend backend;
   final Color backgroundColor;
 
-  _FluttershyWidget(this.defaultScene, this.backgroundColor);
+  _FluttershyWidget(this.backend, this.backgroundColor);
 
   @override
   RenderBox createRenderObject(BuildContext context) {
     return RenderConstrainedBox(
-        child: _FluttershyRenderBox(context, defaultScene, backgroundColor),
+        child: _FluttershyRenderBox(context, backend, backgroundColor),
         additionalConstraints: BoxConstraints.expand());
   }
 
@@ -59,14 +58,14 @@ class _FluttershyWidget extends LeafRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, RenderConstrainedBox renderBox) {
     renderBox
-      ..child = _FluttershyRenderBox(context, defaultScene, backgroundColor)
+      ..child = _FluttershyRenderBox(context, backend, backgroundColor)
       ..additionalConstraints = BoxConstraints.expand();
   }
 }
 
 class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   final BuildContext context;
-  final Scene defaultScene;
+  final Backend backend;
   final Color backgroundColor;
 
   int _frameCallbackId;
@@ -74,7 +73,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   Duration _previous;
 
-  _FluttershyRenderBox(this.context, this.defaultScene, this.backgroundColor)
+  _FluttershyRenderBox(this.context, this.backend, this.backgroundColor)
       : _created = false,
         _previous = Duration.zero;
 
@@ -85,13 +84,15 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void performResize() {
     super.performResize();
 
-    final size = Size(constraints.biggest.width, constraints.biggest.height);
-
-    defaultScene.event(ResizeEvent(size: size));
+    backend.event(
+      ResizeEvent(
+        size: Size(constraints.biggest.width, constraints.biggest.height),
+      ),
+    );
 
     // Update on first frame
     if (!_created) {
-      defaultScene.update(0);
+      backend.update(0);
       _created = true;
     }
   }
@@ -100,7 +101,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void attach(PipelineOwner owner) {
     super.attach(owner);
 
-    defaultScene.setup(context);
+    backend.setup(context);
 
     _scheduleTick();
     _bindLifecycleListener();
@@ -113,7 +114,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     _unscheduleTick();
     _unbindLifecycleListener();
 
-    defaultScene.destroy(context);
+    backend.destroy(context);
   }
 
   void _scheduleTick() {
@@ -136,7 +137,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void _update(Duration now) {
     final double deltaTime = _computeDeltaT(now);
 
-    defaultScene.update(deltaTime);
+    backend.update(deltaTime);
   }
 
   double _computeDeltaT(Duration now) {
@@ -154,13 +155,8 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     context.canvas.drawColor(backgroundColor, BlendMode.color);
     context.canvas.translate(offset.dx, offset.dy);
 
-    if (defaultScene.root.hasCamera) {
-      defaultScene.root.camera.onRender(context.canvas);
-    }
+    backend.render(context.canvas);
 
-    defaultScene.root.orderedNodes.forEach((node) {
-      node.onRender(context.canvas);
-    });
     context.canvas.restore();
   }
 
@@ -174,6 +170,6 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    defaultScene.event(AppLifecycleEvent(state: state));
+    backend.event(AppLifecycleEvent(state: state));
   }
 }
