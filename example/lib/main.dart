@@ -1,11 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart' hide State, Transform, Size;
 import 'package:fluttershy/fluttershy.dart';
-import 'package:fluttershy/foundation/scene.dart';
-import 'package:fluttershy/foundation/rectangle.dart';
-import 'package:fluttershy/foundation/rive.dart';
-import 'package:fluttershy/foundation/camera.dart';
-import 'package:fluttershy/foundation/size.dart';
-import 'package:fluttershy/foundation/anchor.dart';
+import 'package:fluttershy/backend.dart';
 
 void main() => runApp(MyApp());
 
@@ -19,41 +16,31 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Fluttershy(
-          defaultScene: ExampleScene(),
+          backgroundColor: Colors.pink,
+          backend: CustomBackend(),
         ),
       ),
     );
   }
 }
 
-class ExampleScene extends Scene {
+class CustomBackend extends Backend {
+  final Paint paint = Paint()..color = Colors.amber;
+
+  double time = 0;
+  double positionY = 0;
+
   @override
-  void setup(BuildContext context) {
-    super.setup(context);
+  void update(double deltaTime) {
+    positionY = sin(time * 5) * 20;
 
-    final camera = Camera(
-      size: Size(double.infinity, 900),
-      anchor: Anchor.center,
-    );
+    time += deltaTime;
+  }
 
-    final rectangle = Rectangle(
-      color: Colors.green,
-      size: Size(180, 180),
-      anchor: Anchor.center,
-    );
-
-    final rive = Rive(
-      fileName: 'assets/log.flr',
-      size: Size(180, 180 * 2.0),
-      anchor: Anchor.center,
-    );
-
-    camera.transform.translate(200.0);
-
-    root.attachChild(camera);
-
-    camera.attachChild(rectangle);
-    camera.attachChild(rive);
+  @override
+  void render(Canvas canvas) {
+    canvas.drawOval(Rect.fromLTWH(20, 75 + positionY, 200, 200), paint);
   }
 }
