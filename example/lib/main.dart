@@ -1,10 +1,11 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart' hide State, Transform, Size;
+import 'package:flutter/material.dart'
+    hide State, Transform, Size, PointerMoveEvent;
 import 'package:fluttershy/fluttershy.dart';
 import 'package:fluttershy/backend.dart';
 import 'package:fluttershy/event.dart';
-import 'package:fluttershy/events/gesture_event.dart';
+import 'package:fluttershy/events/pointer_event.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,7 +25,6 @@ class MyApp extends StatelessWidget {
           child: Fluttershy(
             backgroundColor: Colors.pink,
             backend: CustomBackend(),
-            listenForTapEvents: true,
           ),
         ),
       ),
@@ -46,9 +46,9 @@ class CustomBackend extends Backend {
 
   @override
   void event(Type type, Event event) {
-    if (event is TapDownEvent) {
-      positionX = event.details.localPosition.dx;
-      positionY = event.details.localPosition.dy;
+    if (type == PointerMoveEvent) {
+      positionX = (event as PointerMoveEvent).screenX;
+      positionY = (event as PointerMoveEvent).screenY;
     }
   }
 
