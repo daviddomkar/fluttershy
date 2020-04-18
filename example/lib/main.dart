@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart' hide State, Transform, Size;
 import 'package:fluttershy/fluttershy.dart';
 import 'package:fluttershy/backend.dart';
+import 'package:fluttershy/event.dart';
+import 'package:fluttershy/events/gesture_event.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,9 +19,13 @@ class MyApp extends StatelessWidget {
       ),
       home: Scaffold(
         resizeToAvoidBottomInset: false,
-        body: Fluttershy(
-          backgroundColor: Colors.pink,
-          backend: CustomBackend(),
+        body: Container(
+          margin: EdgeInsets.all(200),
+          child: Fluttershy(
+            backgroundColor: Colors.pink,
+            backend: CustomBackend(),
+            listenForTapEvents: true,
+          ),
         ),
       ),
     );
@@ -30,17 +36,29 @@ class CustomBackend extends Backend {
   final Paint paint = Paint()..color = Colors.amber;
 
   double time = 0;
-  double positionY = 0;
+  double positionX = 200;
+  double positionY = 200;
 
   @override
   void update(double deltaTime) {
-    positionY = sin(time * 5) * 20;
-
     time += deltaTime;
   }
 
   @override
+  void event(Type type, Event event) {
+    if (event is TapDownEvent) {
+      positionX = event.details.localPosition.dx;
+      positionY = event.details.localPosition.dy;
+    }
+  }
+
+  @override
   void render(Canvas canvas) {
-    canvas.drawOval(Rect.fromLTWH(20, 75 + positionY, 200, 200), paint);
+    canvas.drawOval(
+        Rect.fromCenter(
+            center: Offset(positionX, positionY + sin(time * 5) * 20),
+            width: 200,
+            height: 200),
+        paint);
   }
 }

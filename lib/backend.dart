@@ -6,7 +6,7 @@ abstract class Backend {
 
   void update(double deltaTime) {}
 
-  void event(Event event) {}
+  void event(Type type, Event event) {}
 
   void render(Canvas canvas) {}
 

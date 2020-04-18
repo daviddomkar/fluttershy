@@ -5,15 +5,46 @@ import 'package:flutter/rendering.dart' hide Size;
 import 'package:flutter/scheduler.dart';
 import 'package:fluttershy/backend.dart';
 import 'package:fluttershy/events/app_lifecycle_event.dart';
+import 'package:fluttershy/events/gesture_event.dart';
 import 'package:fluttershy/events/resize_event.dart';
 import 'package:fluttershy/size.dart';
 
 class Fluttershy extends StatefulWidget {
   final Backend backend;
   final Color backgroundColor;
+  final bool listenForTapEvents;
+  final bool listenForSecondaryTapEvents;
+  final bool listenForDoubleTapEvents;
+  final bool listenForLongPressEvents;
+  final bool listenForVerticalDragEvents;
+  final bool listenForHorizontalDragEvents;
+  final bool listenForForcePressEvents;
+  final bool listenForPanEvents;
+  final bool listenForScaleEvents;
 
-  const Fluttershy({Key key, this.backend, this.backgroundColor})
-      : super(key: key);
+  const Fluttershy({
+    Key key,
+    this.backend,
+    this.backgroundColor,
+    bool listenForTapEvents = false,
+    bool listenForSecondaryTapEvents = false,
+    bool listenForDoubleTapEvents = false,
+    bool listenForLongPressEvents = false,
+    bool listenForVerticalDragEvents = false,
+    bool listenForHorizontalDragEvents = false,
+    bool listenForForcePressEvents = false,
+    bool listenForPanEvents = false,
+    bool listenForScaleEvents = false,
+  })  : listenForTapEvents = listenForTapEvents,
+        listenForSecondaryTapEvents = listenForSecondaryTapEvents,
+        listenForDoubleTapEvents = listenForDoubleTapEvents,
+        listenForLongPressEvents = listenForLongPressEvents,
+        listenForVerticalDragEvents = listenForVerticalDragEvents,
+        listenForHorizontalDragEvents = listenForHorizontalDragEvents,
+        listenForForcePressEvents = listenForForcePressEvents,
+        listenForPanEvents = listenForPanEvents,
+        listenForScaleEvents = listenForScaleEvents,
+        super(key: key);
 
   @override
   _FluttershyState createState() => _FluttershyState();
@@ -23,11 +54,110 @@ class _FluttershyState extends State<Fluttershy> {
   @override
   void initState() {
     super.initState();
+    widget.backend.setup(context);
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    widget.backend.destroy(context);
+    widget.backend.setup(context);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.backend.destroy(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTapDown: widget.listenForTapEvents
+          ? (details) =>
+              widget.backend.event(TapDownEvent, TapDownEvent(details))
+          : null,
+      onTapUp: widget.listenForTapEvents
+          ? (details) => widget.backend.event(TapUpEvent, TapUpEvent(details))
+          : null,
+      onTap: widget.listenForTapEvents
+          ? () => widget.backend.event(TapEvent, TapEvent())
+          : null,
+      onTapCancel: widget.listenForTapEvents
+          ? () => widget.backend.event(TapCancelEvent, TapCancelEvent())
+          : null,
+      onSecondaryTapDown: widget.listenForSecondaryTapEvents
+          ? (details) => widget.backend
+              .event(SecondaryTapDownEvent, SecondaryTapDownEvent(details))
+          : null,
+      onSecondaryTapUp: widget.listenForSecondaryTapEvents
+          ? (details) => widget.backend
+              .event(SecondaryTapUpEvent, SecondaryTapUpEvent(details))
+          : null,
+      onSecondaryTapCancel: widget.listenForSecondaryTapEvents
+          ? () => widget.backend
+              .event(SecondaryTapCancelEvent, SecondaryTapCancelEvent())
+          : null,
+      onDoubleTap: widget.listenForDoubleTapEvents
+          ? () => widget.backend.event(DoubleTapEvent, DoubleTapEvent())
+          : null,
+      /*onLongPress: () => {},
+      onLongPressStart: (details) => {},
+      onLongPressMoveUpdate: (details) => {},
+      onLongPressUp: () => {},
+      onLongPressEnd: (details) => {},*/
+      onVerticalDragDown: widget.listenForVerticalDragEvents
+          ? (details) => widget.backend
+              .event(VerticalDragDownEvent, VerticalDragDownEvent(details))
+          : null,
+      onVerticalDragStart: widget.listenForVerticalDragEvents
+          ? (details) => widget.backend
+              .event(VerticalDragStartEvent, VerticalDragStartEvent(details))
+          : null,
+      onVerticalDragUpdate: widget.listenForVerticalDragEvents
+          ? (details) => widget.backend
+              .event(VerticalDragUpdateEvent, VerticalDragUpdateEvent(details))
+          : null,
+      onVerticalDragEnd: widget.listenForVerticalDragEvents
+          ? (details) => widget.backend
+              .event(VerticalDragEndEvent, VerticalDragEndEvent(details))
+          : null,
+      onVerticalDragCancel: widget.listenForVerticalDragEvents
+          ? () => widget.backend
+              .event(VerticalDragCancelEvent, VerticalDragCancelEvent())
+          : null,
+      onHorizontalDragDown: widget.listenForHorizontalDragEvents
+          ? (details) => widget.backend
+              .event(HorizontalDragDownEvent, HorizontalDragDownEvent(details))
+          : null,
+      onHorizontalDragStart: widget.listenForHorizontalDragEvents
+          ? (details) => widget.backend.event(
+              HorizontalDragStartEvent, HorizontalDragStartEvent(details))
+          : null,
+      onHorizontalDragUpdate: widget.listenForHorizontalDragEvents
+          ? (details) => widget.backend.event(
+              HorizontalDragUpdateEvent, HorizontalDragUpdateEvent(details))
+          : null,
+      onHorizontalDragEnd: widget.listenForHorizontalDragEvents
+          ? (details) => widget.backend
+              .event(HorizontalDragEndEvent, HorizontalDragEndEvent(details))
+          : null,
+      onHorizontalDragCancel: widget.listenForHorizontalDragEvents
+          ? () => widget.backend
+              .event(HorizontalDragCancelEvent, HorizontalDragCancelEvent())
+          : null,
+      /*onForcePressStart: (details) => {},
+      onForcePressPeak: (details) => {},
+      onForcePressUpdate: (details) => {},
+      onForcePressEnd: (details) => {},
+      onPanDown: (details) => {},
+      onPanStart: (details) => {},
+      onPanUpdate: (details) => {},
+      onPanEnd: (details) => {},
+      onPanCancel: () => {},
+      onScaleStart: (details) => {},
+      onScaleUpdate: (details) => {},
+      onScaleEnd: (details) => {},*/
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
@@ -85,6 +215,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     super.performResize();
 
     backend.event(
+      ResizeEvent,
       ResizeEvent(
         size: Size(constraints.biggest.width, constraints.biggest.height),
       ),
@@ -101,8 +232,6 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void attach(PipelineOwner owner) {
     super.attach(owner);
 
-    backend.setup(context);
-
     _scheduleTick();
     _bindLifecycleListener();
   }
@@ -113,8 +242,6 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
     _unscheduleTick();
     _unbindLifecycleListener();
-
-    backend.destroy(context);
   }
 
   void _scheduleTick() {
@@ -154,6 +281,8 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     context.canvas.save();
     context.canvas.drawColor(backgroundColor, BlendMode.color);
     context.canvas.translate(offset.dx, offset.dy);
+    context.canvas.clipRect(Rect.fromLTWH(
+        0, 0, constraints.biggest.width, constraints.biggest.height));
 
     backend.render(context.canvas);
 
@@ -170,6 +299,9 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    backend.event(AppLifecycleEvent(state: state));
+    backend.event(
+      AppLifecycleEvent,
+      AppLifecycleEvent(state: state),
+    );
   }
 }
