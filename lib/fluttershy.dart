@@ -1,5 +1,12 @@
 library fluttershy;
 
+export 'events/app_lifecycle_event.dart';
+export 'events/pointer_event.dart';
+export 'events/resize_event.dart';
+export 'event.dart';
+export 'game.dart';
+export 'size.dart';
+
 import 'package:flutter/material.dart'
     hide
         Size,
@@ -15,19 +22,19 @@ import 'package:flutter/rendering.dart'
         PointerUpEvent,
         PointerCancelEvent;
 import 'package:flutter/scheduler.dart';
-import 'package:fluttershy/backend.dart';
+import 'package:fluttershy/game.dart';
 import 'package:fluttershy/events/app_lifecycle_event.dart';
 import 'package:fluttershy/events/pointer_event.dart';
 import 'package:fluttershy/events/resize_event.dart';
 import 'package:fluttershy/size.dart';
 
 class Fluttershy extends StatefulWidget {
-  final Backend backend;
+  final Game game;
   final Color backgroundColor;
 
   const Fluttershy({
     Key key,
-    this.backend,
+    this.game,
     this.backgroundColor,
   }) : super(key: key);
 
@@ -39,24 +46,19 @@ class _FluttershyState extends State<Fluttershy> {
   @override
   Widget build(BuildContext context) {
     return Listener(
-      onPointerDown: (rawEvent) => widget.backend.event(
-        PointerDownEvent,
+      onPointerDown: (rawEvent) => widget.game.event(
         PointerDownEvent(rawEvent),
       ),
-      onPointerMove: (rawEvent) => widget.backend.event(
-        PointerMoveEvent,
+      onPointerMove: (rawEvent) => widget.game.event(
         PointerMoveEvent(rawEvent),
       ),
-      onPointerUp: (rawEvent) => widget.backend.event(
-        PointerUpEvent,
+      onPointerUp: (rawEvent) => widget.game.event(
         PointerUpEvent(rawEvent),
       ),
-      onPointerSignal: (rawEvent) => widget.backend.event(
-        PointerSignalEvent,
+      onPointerSignal: (rawEvent) => widget.game.event(
         PointerSignalEvent(rawEvent),
       ),
-      onPointerCancel: (rawEvent) => widget.backend.event(
-        PointerCancelEvent,
+      onPointerCancel: (rawEvent) => widget.game.event(
         PointerCancelEvent(rawEvent),
       ),
       child: LayoutBuilder(
@@ -64,7 +66,7 @@ class _FluttershyState extends State<Fluttershy> {
           return Container(
             color: widget.backgroundColor ?? Colors.black,
             child: _FluttershyWidget(
-                widget.backend, widget.backgroundColor ?? Colors.black),
+                widget.game, widget.backgroundColor ?? Colors.black),
           );
         },
       ),
@@ -73,15 +75,15 @@ class _FluttershyState extends State<Fluttershy> {
 }
 
 class _FluttershyWidget extends LeafRenderObjectWidget {
-  final Backend backend;
+  final Game game;
   final Color backgroundColor;
 
-  _FluttershyWidget(this.backend, this.backgroundColor);
+  _FluttershyWidget(this.game, this.backgroundColor);
 
   @override
   RenderBox createRenderObject(BuildContext context) {
     return RenderConstrainedBox(
-        child: _FluttershyRenderBox(context, backend, backgroundColor),
+        child: _FluttershyRenderBox(context, game, backgroundColor),
         additionalConstraints: BoxConstraints.expand());
   }
 
@@ -89,14 +91,14 @@ class _FluttershyWidget extends LeafRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, RenderConstrainedBox renderBox) {
     renderBox
-      ..child = _FluttershyRenderBox(context, backend, backgroundColor)
+      ..child = _FluttershyRenderBox(context, game, backgroundColor)
       ..additionalConstraints = BoxConstraints.expand();
   }
 }
 
 class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   final BuildContext context;
-  final Backend backend;
+  final Game game;
   final Color backgroundColor;
 
   int _frameCallbackId;
@@ -104,7 +106,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   Duration _previous;
 
-  _FluttershyRenderBox(this.context, this.backend, this.backgroundColor)
+  _FluttershyRenderBox(this.context, this.game, this.backgroundColor)
       : _created = false,
         _previous = Duration.zero;
 
@@ -115,8 +117,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void performResize() {
     super.performResize();
 
-    backend.event(
-      ResizeEvent,
+    game.event(
       ResizeEvent(
         size: Size(constraints.biggest.width, constraints.biggest.height),
       ),
@@ -124,7 +125,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
     // Update on first frame
     if (!_created) {
-      backend.update(0);
+      game.update(0);
       _created = true;
     }
   }
@@ -136,14 +137,14 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     _scheduleTick();
     _bindLifecycleListener();
 
-    backend.setup(context);
+    game.setup(context);
   }
 
   @override
   void detach() {
     super.detach();
 
-    backend.destroy(context);
+    game.destroy(context);
 
     _unscheduleTick();
     _unbindLifecycleListener();
@@ -169,7 +170,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void _update(Duration now) {
     final double deltaTime = _computeDeltaT(now);
 
-    backend.update(deltaTime);
+    game.update(deltaTime);
   }
 
   double _computeDeltaT(Duration now) {
@@ -189,7 +190,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     context.canvas.clipRect(Rect.fromLTWH(
         0, 0, constraints.biggest.width, constraints.biggest.height));
 
-    backend.render(context.canvas);
+    game.render(context.canvas);
 
     context.canvas.restore();
   }
@@ -204,8 +205,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    backend.event(
-      AppLifecycleEvent,
+    game.event(
       AppLifecycleEvent(state: state),
     );
   }

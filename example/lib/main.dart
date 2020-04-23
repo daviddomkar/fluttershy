@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart'
     hide State, Transform, Size, PointerMoveEvent;
 import 'package:fluttershy/fluttershy.dart';
-import 'package:fluttershy/backend.dart';
+import 'package:fluttershy/game.dart';
 import 'package:fluttershy/event.dart';
 import 'package:fluttershy/events/pointer_event.dart';
 
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
           margin: EdgeInsets.all(200),
           child: Fluttershy(
             backgroundColor: Colors.pink,
-            backend: CustomBackend(),
+            game: ExampleGame(),
           ),
         ),
       ),
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class CustomBackend extends Backend {
+class ExampleGame extends Game {
   final Paint paint = Paint()..color = Colors.amber;
 
   double time = 0;
@@ -45,10 +45,10 @@ class CustomBackend extends Backend {
   }
 
   @override
-  void event(Type type, Event event) {
-    if (type == PointerMoveEvent) {
-      positionX = (event as PointerMoveEvent).screenX;
-      positionY = (event as PointerMoveEvent).screenY;
+  void event(Event event) {
+    if (event.type == PointerMoveEvent) {
+      positionX = (event as PointerMoveEvent).position.x;
+      positionY = (event as PointerMoveEvent).position.y;
     }
   }
 

@@ -1,3 +1,9 @@
+## [0.1.3]
+
+- Rendamed Backend class to Game class
+- Removed Event Type
+- Reexported core libraries and types
+
 ## [0.1.2]
 
 - Minor changes
