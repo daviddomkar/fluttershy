@@ -1,57 +1,53 @@
 import 'package:flutter/gestures.dart' as flutter;
 import 'package:fluttershy/event.dart';
+import 'package:vector_math/vector_math_64.dart';
 
-class PointerDownEvent extends Event {
+class PointerDownEvent extends Event<PointerDownEvent> {
   final flutter.PointerDownEvent rawEvent;
 
-  final double screenX;
-  final double screenY;
+  final Vector2 position;
 
   PointerDownEvent(this.rawEvent)
-      : screenX = rawEvent.localPosition.dx,
-        screenY = rawEvent.localPosition.dy;
+      : position =
+            Vector2(rawEvent.localPosition.dx, rawEvent.localPosition.dy);
 }
 
-class PointerMoveEvent extends Event {
+class PointerMoveEvent extends Event<PointerMoveEvent> {
   final flutter.PointerMoveEvent rawEvent;
 
-  final double screenX;
-  final double screenY;
+  final Vector2 position;
 
   PointerMoveEvent(this.rawEvent)
-      : screenX = rawEvent.localPosition.dx,
-        screenY = rawEvent.localPosition.dy;
+      : position =
+            Vector2(rawEvent.localPosition.dx, rawEvent.localPosition.dy);
 }
 
-class PointerUpEvent extends Event {
+class PointerUpEvent extends Event<PointerUpEvent> {
   final flutter.PointerUpEvent rawEvent;
 
-  final double screenX;
-  final double screenY;
+  final Vector2 position;
 
   PointerUpEvent(this.rawEvent)
-      : screenX = rawEvent.localPosition.dx,
-        screenY = rawEvent.localPosition.dy;
+      : position =
+            Vector2(rawEvent.localPosition.dx, rawEvent.localPosition.dy);
 }
 
-class PointerSignalEvent extends Event {
+class PointerSignalEvent extends Event<PointerSignalEvent> {
   final flutter.PointerSignalEvent rawEvent;
 
-  final double screenX;
-  final double screenY;
+  final Vector2 position;
 
   PointerSignalEvent(this.rawEvent)
-      : screenX = rawEvent.localPosition.dx,
-        screenY = rawEvent.localPosition.dy;
+      : position =
+            Vector2(rawEvent.localPosition.dx, rawEvent.localPosition.dy);
 }
 
-class PointerCancelEvent extends Event {
+class PointerCancelEvent extends Event<PointerCancelEvent> {
   final flutter.PointerCancelEvent rawEvent;
 
-  final double screenX;
-  final double screenY;
+  final Vector2 position;
 
   PointerCancelEvent(this.rawEvent)
-      : screenX = rawEvent.localPosition.dx,
-        screenY = rawEvent.localPosition.dy;
+      : position =
+            Vector2(rawEvent.localPosition.dx, rawEvent.localPosition.dy);
 }

@@ -1,1 +1,3 @@
-abstract class Event {}
+abstract class Event<T> {
+  Type get type => T;
+}
