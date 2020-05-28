@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart' as flutter;
 import 'package:fluttershy/event.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-class PointerDownEvent extends Event<PointerDownEvent> {
+class PointerDownEvent with Event<PointerDownEvent> {
   final flutter.PointerDownEvent rawEvent;
 
   final Vector2 position;
@@ -12,7 +12,7 @@ class PointerDownEvent extends Event<PointerDownEvent> {
             Vector2(rawEvent.localPosition.dx, rawEvent.localPosition.dy);
 }
 
-class PointerMoveEvent extends Event<PointerMoveEvent> {
+class PointerMoveEvent with Event<PointerMoveEvent> {
   final flutter.PointerMoveEvent rawEvent;
 
   final Vector2 position;
@@ -22,7 +22,7 @@ class PointerMoveEvent extends Event<PointerMoveEvent> {
             Vector2(rawEvent.localPosition.dx, rawEvent.localPosition.dy);
 }
 
-class PointerUpEvent extends Event<PointerUpEvent> {
+class PointerUpEvent with Event<PointerUpEvent> {
   final flutter.PointerUpEvent rawEvent;
 
   final Vector2 position;
@@ -32,7 +32,7 @@ class PointerUpEvent extends Event<PointerUpEvent> {
             Vector2(rawEvent.localPosition.dx, rawEvent.localPosition.dy);
 }
 
-class PointerSignalEvent extends Event<PointerSignalEvent> {
+class PointerSignalEvent with Event<PointerSignalEvent> {
   final flutter.PointerSignalEvent rawEvent;
 
   final Vector2 position;
@@ -42,7 +42,7 @@ class PointerSignalEvent extends Event<PointerSignalEvent> {
             Vector2(rawEvent.localPosition.dx, rawEvent.localPosition.dy);
 }
 
-class PointerCancelEvent extends Event<PointerCancelEvent> {
+class PointerCancelEvent with Event<PointerCancelEvent> {
   final flutter.PointerCancelEvent rawEvent;
 
   final Vector2 position;
