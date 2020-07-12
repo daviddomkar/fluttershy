@@ -14,6 +14,7 @@ import 'package:flutter/material.dart'
         PointerMoveEvent,
         PointerUpEvent,
         PointerCancelEvent;
+
 import 'package:flutter/rendering.dart'
     hide
         Size,
@@ -21,6 +22,7 @@ import 'package:flutter/rendering.dart'
         PointerMoveEvent,
         PointerUpEvent,
         PointerCancelEvent;
+
 import 'package:flutter/scheduler.dart';
 import 'package:fluttershy/game.dart';
 import 'package:fluttershy/events/app_lifecycle_event.dart';
