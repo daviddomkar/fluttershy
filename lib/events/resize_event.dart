@@ -1,4 +1,4 @@
-import 'package:fluttershy/event.dart';
+import 'package:fluttershy/events/event.dart';
 import 'package:fluttershy/size.dart';
 
 class ResizeEvent with Event<ResizeEvent> {
