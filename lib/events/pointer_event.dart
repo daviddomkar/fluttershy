@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart' as flutter;
-import 'package:fluttershy/event.dart';
+import 'package:fluttershy/events/event.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 class PointerDownEvent with Event<PointerDownEvent> {
