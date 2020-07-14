@@ -1,10 +1,12 @@
 library fluttershy;
 
+export './context.dart';
+
 export 'events/app_lifecycle_event.dart';
 export 'events/pointer_event.dart';
 export 'events/resize_event.dart';
 export 'event.dart';
-export 'game.dart';
+export 'engine.dart';
 export 'size.dart';
 
 import 'package:flutter/material.dart'
@@ -24,14 +26,15 @@ import 'package:flutter/rendering.dart'
         PointerCancelEvent;
 
 import 'package:flutter/scheduler.dart';
-import 'package:fluttershy/game.dart';
+import 'package:fluttershy/engine.dart';
+import 'package:fluttershy/context.dart';
 import 'package:fluttershy/events/app_lifecycle_event.dart';
 import 'package:fluttershy/events/pointer_event.dart';
 import 'package:fluttershy/events/resize_event.dart';
 import 'package:fluttershy/size.dart';
 
-class Fluttershy extends StatefulWidget {
-  final Game game;
+class Fluttershy<E extends Engine, C extends Context> extends StatefulWidget {
+  final E engine;
   final Color backgroundColor;
 
   const Fluttershy({
@@ -68,7 +71,7 @@ class _FluttershyState extends State<Fluttershy> {
           return Container(
             color: widget.backgroundColor ?? Colors.black,
             child: _FluttershyWidget(
-                widget.game, widget.backgroundColor ?? Colors.black),
+                widget.engine, widget.backgroundColor ?? Colors.black),
           );
         },
       ),

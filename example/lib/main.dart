@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart'
     hide State, Transform, Size, PointerMoveEvent;
 import 'package:fluttershy/fluttershy.dart';
-import 'package:fluttershy/game.dart';
+import 'package:fluttershy/engine.dart';
 import 'package:fluttershy/event.dart';
 import 'package:fluttershy/events/pointer_event.dart';
 
