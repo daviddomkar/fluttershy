@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart'
     hide
         Size,
@@ -20,122 +18,122 @@ import 'fluttershy.dart';
 
 abstract class Context {
   BuildContext _buildContext;
-/*
-  final List<SetupListener> _setupListeners;
-  final List<EventListener> _eventListeners;
-  final List<UpdateListener> _updateListeners;
-  final List<RenderListener> _renderListeners;
-  final List<DestroyListener> _destroyListeners;
 
-  Context()
-      : _setupListeners = List(),
-        _eventListeners = List(),
-        _updateListeners = List(),
-        _renderListeners = List(),
-        _destroyListeners = List();
-*/
   void _assignBuildContext(BuildContext context) {
     _buildContext = context;
   }
 
-/*
-  void addSetupListener(SetupListener listener) {
-    _setupListeners.add(listener);
-  }
-
-  void removeSetupListener(SetupListener listener) {
-    _setupListeners.remove(listener);
-  }
-
-  void addEventListener(EventListener listener) {
-    _eventListeners.add(listener);
-  }
-
-  void removeEventListener(EventListener listener) {
-    _eventListeners.remove(listener);
-  }
-
-  void addUpdateListener(UpdateListener listener) {
-    _updateListeners.add(listener);
-  }
-
-  void addRenderListener(RenderListener listener) {
-    _renderListeners.add(listener);
-  }
-
-  void addDestoyListener(DestroyListener listener) {
-    _destroyListeners.add(listener);
-  }
-
-  void addLifecycleListener(LifecycleListener listener) {
-    addSetupListener(listener);
-    addEventListener(listener);
-    addUpdateListener(listener);
-    addRenderListener(listener);
-    addDestoyListener(listener);
-  }
-*/
   BuildContext get buildContext => _buildContext;
 }
 
+class _Fluttershy<C extends Context> {
+  C _context;
+
+  final C Function() _contextBuilder;
+
+  final void Function(C context) _setup;
+  final void Function(C context, Event event) _event;
+  final void Function(C context, double deltaTime) _update;
+  final void Function(C context, Canvas canvas) _render;
+  final void Function(C context) _destroy;
+
+  final Color _backgroundColor;
+
+  _Fluttershy(
+    C Function() contextBuilder,
+    void Function(C context) setup,
+    void Function(C context, Event event) event,
+    void Function(C context, double deltaTime) update,
+    void Function(C context, Canvas canvas) render,
+    void Function(C context) destroy,
+    Color backgroundColor,
+  )   : _contextBuilder = contextBuilder,
+        _setup = setup,
+        _event = event,
+        _update = update,
+        _render = render,
+        _destroy = destroy,
+        _backgroundColor = backgroundColor;
+
+  void setup(BuildContext buildContext) {
+    _context = _contextBuilder();
+    _context._assignBuildContext(buildContext);
+    _setup?.call(_context);
+  }
+
+  void event(Event event) {
+    _event?.call(_context, event);
+  }
+
+  void update(double deltaTime) {
+    _update?.call(_context, deltaTime);
+  }
+
+  void render(Canvas canvas, Offset offset, double width, double height) {
+    canvas.drawColor(_backgroundColor, BlendMode.color);
+    canvas.translate(offset.dx, offset.dy);
+    canvas.clipRect(Rect.fromLTWH(
+      0,
+      0,
+      width,
+      height,
+    ));
+
+    _render?.call(_context, canvas);
+  }
+
+  void destroy() {
+    _destroy?.call(_context);
+    _context = null;
+  }
+}
+
 class FluttershyWidget<C extends Context> extends StatelessWidget {
-  final C context;
+  final _Fluttershy<C> _fluttershy;
 
-  final void Function(C context) setup;
-  final void Function(C context, Event event) event;
-  final void Function(C context, double deltaTime) update;
-  final void Function(C context, Canvas canvas) render;
-  final void Function(C context) destroy;
-
-  final Color backgroundColor;
-
-  const FluttershyWidget({
+  FluttershyWidget({
     Key key,
-    @required this.context,
-    this.setup,
-    this.event,
-    this.update,
-    this.render,
-    this.destroy,
-    this.backgroundColor,
-  }) : super(key: key);
+    C Function() contextBuilder,
+    void Function(C context) setup,
+    void Function(C context, Event event) event,
+    void Function(C context, double deltaTime) update,
+    void Function(C context, Canvas canvas) render,
+    void Function(C context) destroy,
+    Color backgroundColor,
+  })  : _fluttershy = _Fluttershy<C>(
+          contextBuilder,
+          setup,
+          event,
+          update,
+          render,
+          destroy,
+          backgroundColor,
+        ),
+        super(key: key);
 
   @override
   Widget build(BuildContext buildContext) {
     return Listener(
-      onPointerDown: (rawEvent) => event(
-        context,
+      onPointerDown: (rawEvent) => _fluttershy.event(
         PointerDownEvent(rawEvent),
       ),
-      onPointerMove: (rawEvent) => event(
-        context,
+      onPointerMove: (rawEvent) => _fluttershy.event(
         PointerMoveEvent(rawEvent),
       ),
-      onPointerUp: (rawEvent) => event(
-        context,
+      onPointerUp: (rawEvent) => _fluttershy.event(
         PointerUpEvent(rawEvent),
       ),
-      onPointerSignal: (rawEvent) => event(
-        context,
+      onPointerSignal: (rawEvent) => _fluttershy.event(
         PointerSignalEvent(rawEvent),
       ),
-      onPointerCancel: (rawEvent) => event(
-        context,
+      onPointerCancel: (rawEvent) => _fluttershy.event(
         PointerCancelEvent(rawEvent),
       ),
       child: LayoutBuilder(
         builder: (buildContext, constraints) {
           return Container(
-            color: backgroundColor ?? Colors.black,
-            child: _RenderObjectWidget<C>(
-              context,
-              setup,
-              event,
-              update,
-              render,
-              destroy,
-              backgroundColor ?? Colors.black,
-            ),
+            color: _fluttershy._backgroundColor ?? Colors.black,
+            child: _RenderObjectWidget<C>(_fluttershy),
           );
         },
       ),
@@ -144,39 +142,14 @@ class FluttershyWidget<C extends Context> extends StatelessWidget {
 }
 
 class _RenderObjectWidget<C extends Context> extends LeafRenderObjectWidget {
-  final C context;
+  final _Fluttershy<C> fluttershy;
 
-  final void Function(C context) setup;
-  final void Function(C context, Event event) event;
-  final void Function(C context, double deltaTime) update;
-  final void Function(C context, Canvas canvas) render;
-  final void Function(C context) destroy;
-
-  final Color backgroundColor;
-
-  _RenderObjectWidget(
-    this.context,
-    this.setup,
-    this.event,
-    this.update,
-    this.render,
-    this.destroy,
-    this.backgroundColor,
-  );
+  _RenderObjectWidget(this.fluttershy);
 
   @override
   RenderBox createRenderObject(BuildContext buildContext) {
     return RenderConstrainedBox(
-        child: _RenderBox<C>(
-          buildContext,
-          context,
-          setup,
-          event,
-          update,
-          render,
-          destroy,
-          backgroundColor,
-        ),
+        child: _RenderBox<C>(buildContext, fluttershy),
         additionalConstraints: BoxConstraints.expand());
   }
 
@@ -184,31 +157,15 @@ class _RenderObjectWidget<C extends Context> extends LeafRenderObjectWidget {
   void updateRenderObject(
       BuildContext buildContext, RenderConstrainedBox renderBox) {
     renderBox
-      ..child = _RenderBox<C>(
-        buildContext,
-        context,
-        setup,
-        event,
-        update,
-        render,
-        destroy,
-        backgroundColor,
-      )
+      ..child = _RenderBox<C>(buildContext, fluttershy)
       ..additionalConstraints = BoxConstraints.expand();
   }
 }
 
 class _RenderBox<C extends Context> extends RenderBox
     with WidgetsBindingObserver {
-  final C context;
-
-  final void Function(C context) setup;
-  final void Function(C context, Event event) event;
-  final void Function(C context, double deltaTime) update;
-  final void Function(C context, Canvas canvas) render;
-  final void Function(C context) destroy;
-
-  final Color backgroundColor;
+  final BuildContext buildContext;
+  final _Fluttershy<C> fluttershy;
 
   int _frameCallbackId;
   bool _created;
@@ -216,18 +173,10 @@ class _RenderBox<C extends Context> extends RenderBox
   Duration _previous;
 
   _RenderBox(
-    BuildContext buildContext,
-    this.context,
-    this.setup,
-    this.event,
-    this.update,
-    this.render,
-    this.destroy,
-    this.backgroundColor,
+    this.buildContext,
+    this.fluttershy,
   )   : _created = false,
-        _previous = Duration.zero {
-    context._assignBuildContext(buildContext);
-  }
+        _previous = Duration.zero;
 
   @override
   bool get sizedByParent => true;
@@ -236,8 +185,7 @@ class _RenderBox<C extends Context> extends RenderBox
   void performResize() {
     super.performResize();
 
-    event(
-      context,
+    fluttershy.event(
       ResizeEvent(
         size: Size(constraints.biggest.width, constraints.biggest.height),
       ),
@@ -245,7 +193,7 @@ class _RenderBox<C extends Context> extends RenderBox
 
     // Update on first frame
     if (!_created) {
-      update(context, 0);
+      fluttershy.update(0);
       _created = true;
     }
   }
@@ -257,14 +205,14 @@ class _RenderBox<C extends Context> extends RenderBox
     _scheduleTick();
     _bindLifecycleListener();
 
-    setup(context);
+    fluttershy.setup(buildContext);
   }
 
   @override
   void detach() {
     super.detach();
 
-    destroy(context);
+    fluttershy.destroy();
 
     _unscheduleTick();
     _unbindLifecycleListener();
@@ -290,7 +238,7 @@ class _RenderBox<C extends Context> extends RenderBox
   void _update(Duration now) {
     final double deltaTime = _computeDeltaT(now);
 
-    update(context, deltaTime);
+    fluttershy.update(deltaTime);
   }
 
   double _computeDeltaT(Duration now) {
@@ -307,16 +255,9 @@ class _RenderBox<C extends Context> extends RenderBox
     final canvas = paintingContext.canvas;
 
     canvas.save();
-    canvas.drawColor(backgroundColor, BlendMode.color);
-    canvas.translate(offset.dx, offset.dy);
-    canvas.clipRect(Rect.fromLTWH(
-      0,
-      0,
-      constraints.biggest.width,
-      constraints.biggest.height,
-    ));
 
-    render(context, canvas);
+    fluttershy.render(
+        canvas, offset, constraints.biggest.width, constraints.biggest.height);
 
     canvas.restore();
   }
@@ -331,9 +272,6 @@ class _RenderBox<C extends Context> extends RenderBox
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    event(
-      context,
-      AppLifecycleEvent(state: state),
-    );
+    fluttershy.event(AppLifecycleEvent(state: state));
   }
 }

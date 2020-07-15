@@ -1,3 +1,13 @@
+## [0.2.1]
+
+- BREAKING CHANGES (see the example)
+- context widget parameter renamed to contextBuilder now accepts closure which is run before the next setup is run, effectively recreacting context during the lifecycle
+
+## [0.2.0]
+
+- BREAKING CHANGES (see the example)
+- API change to use custom Context class as data storage and plain engine lifecycle functions for manipulating it
+
 ## [0.1.4]
 
 - Minor fixes
