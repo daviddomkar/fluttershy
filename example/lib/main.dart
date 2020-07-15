@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         body: Container(
           margin: EdgeInsets.all(200),
           child: FluttershyWidget(
-            context: ExampleContext(),
+            contextBuilder: () => ExampleContext(),
             event: (context, event) {
               if (event.type == PointerMoveEvent) {
                 context.positionX = (event as PointerMoveEvent).position.x;
