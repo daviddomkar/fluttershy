@@ -4,5 +4,5 @@ import 'package:fluttershy/events/event.dart';
 class AppLifecycleEvent with Event<AppLifecycleEvent> {
   final AppLifecycleState state;
 
-  AppLifecycleEvent({this.state});
+  AppLifecycleEvent({required this.state});
 }

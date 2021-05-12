@@ -1,8 +1,8 @@
 import 'package:fluttershy/events/event.dart';
-import 'package:fluttershy/size.dart';
+import 'package:fluttershy/math.dart';
 
 class ResizeEvent with Event<ResizeEvent> {
-  final Size size;
+  final Vector2 size;
 
-  ResizeEvent({this.size});
+  ResizeEvent({required this.size});
 }

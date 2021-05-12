@@ -1,76 +1,45 @@
-import 'package:flutter/material.dart'
-    hide
-        Size,
-        PointerDownEvent,
-        PointerMoveEvent,
-        PointerUpEvent,
-        PointerCancelEvent;
-import 'package:flutter/rendering.dart'
-    hide
-        Size,
-        PointerDownEvent,
-        PointerMoveEvent,
-        PointerUpEvent,
-        PointerCancelEvent;
+import 'dart:ui';
+
+import 'package:flutter/material.dart' hide Size, PointerDownEvent, PointerMoveEvent, PointerUpEvent, PointerCancelEvent;
+import 'package:flutter/rendering.dart' hide Size, PointerDownEvent, PointerMoveEvent, PointerUpEvent, PointerCancelEvent;
 import 'package:flutter/scheduler.dart';
 
 import 'fluttershy.dart';
+import 'math.dart';
 
-abstract class Context {
-  BuildContext _buildContext;
-
-  void _assignBuildContext(BuildContext context) {
-    _buildContext = context;
-  }
-
-  BuildContext get buildContext => _buildContext;
-}
-
-class _Fluttershy<C extends Context> {
-  C _context;
-
-  final C Function() _contextBuilder;
-
-  final void Function(C context) _setup;
-  final void Function(C context, Event event) _event;
-  final void Function(C context, double deltaTime) _update;
-  final void Function(C context, Canvas canvas) _render;
-  final void Function(C context) _destroy;
-
-  final Color _backgroundColor;
+class _Fluttershy {
+  final void Function()? _setup;
+  final void Function(Event event)? _event;
+  final void Function(double deltaTime)? _update;
+  final void Function(Canvas canvas)? _render;
+  final void Function()? _destroy;
 
   _Fluttershy(
-    C Function() contextBuilder,
-    void Function(C context) setup,
-    void Function(C context, Event event) event,
-    void Function(C context, double deltaTime) update,
-    void Function(C context, Canvas canvas) render,
-    void Function(C context) destroy,
-    Color backgroundColor,
-  )   : _contextBuilder = contextBuilder,
-        _setup = setup,
+    void Function()? setup,
+    void Function(Event event)? event,
+    void Function(double deltaTime)? update,
+    void Function(Canvas canvas)? render,
+    void Function()? destroy,
+  )   : _setup = setup,
         _event = event,
         _update = update,
         _render = render,
-        _destroy = destroy,
-        _backgroundColor = backgroundColor;
+        _destroy = destroy;
 
   void setup(BuildContext buildContext) {
-    _context = _contextBuilder();
-    _context._assignBuildContext(buildContext);
-    _setup?.call(_context);
+    _setup?.call();
   }
 
   void event(Event event) {
-    _event?.call(_context, event);
+    _event?.call(event);
   }
 
   void update(double deltaTime) {
-    _update?.call(_context, deltaTime);
+    _update?.call(deltaTime);
   }
 
   void render(Canvas canvas, Offset offset, double width, double height) {
-    canvas.drawColor(_backgroundColor, BlendMode.color);
+    canvas.drawColor(Colors.black, BlendMode.color);
     canvas.translate(offset.dx, offset.dy);
     canvas.clipRect(Rect.fromLTWH(
       0,
@@ -79,100 +48,42 @@ class _Fluttershy<C extends Context> {
       height,
     ));
 
-    _render?.call(_context, canvas);
+    _render?.call(canvas);
   }
 
   void destroy() {
-    _destroy?.call(_context);
-    _context = null;
+    _destroy?.call();
   }
 }
 
-class FluttershyWidget<C extends Context> extends StatelessWidget {
-  final _Fluttershy<C> _fluttershy;
+class _FluttershyRenderObjectWidget extends LeafRenderObjectWidget {
+  final _Fluttershy fluttershy;
 
-  FluttershyWidget({
-    Key key,
-    C Function() contextBuilder,
-    void Function(C context) setup,
-    void Function(C context, Event event) event,
-    void Function(C context, double deltaTime) update,
-    void Function(C context, Canvas canvas) render,
-    void Function(C context) destroy,
-    Color backgroundColor,
-  })  : _fluttershy = _Fluttershy<C>(
-          contextBuilder,
-          setup,
-          event,
-          update,
-          render,
-          destroy,
-          backgroundColor,
-        ),
-        super(key: key);
-
-  @override
-  Widget build(BuildContext buildContext) {
-    return Listener(
-      onPointerDown: (rawEvent) => _fluttershy.event(
-        PointerDownEvent(rawEvent),
-      ),
-      onPointerMove: (rawEvent) => _fluttershy.event(
-        PointerMoveEvent(rawEvent),
-      ),
-      onPointerUp: (rawEvent) => _fluttershy.event(
-        PointerUpEvent(rawEvent),
-      ),
-      onPointerSignal: (rawEvent) => _fluttershy.event(
-        PointerSignalEvent(rawEvent),
-      ),
-      onPointerCancel: (rawEvent) => _fluttershy.event(
-        PointerCancelEvent(rawEvent),
-      ),
-      child: LayoutBuilder(
-        builder: (buildContext, constraints) {
-          return Container(
-            color: _fluttershy._backgroundColor ?? Colors.black,
-            child: _RenderObjectWidget<C>(_fluttershy),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _RenderObjectWidget<C extends Context> extends LeafRenderObjectWidget {
-  final _Fluttershy<C> fluttershy;
-
-  _RenderObjectWidget(this.fluttershy);
+  _FluttershyRenderObjectWidget(this.fluttershy);
 
   @override
   RenderBox createRenderObject(BuildContext buildContext) {
-    return RenderConstrainedBox(
-        child: _RenderBox<C>(buildContext, fluttershy),
-        additionalConstraints: BoxConstraints.expand());
+    return RenderConstrainedBox(child: _FluttershyRenderBox(buildContext, fluttershy), additionalConstraints: BoxConstraints.expand());
   }
 
   @override
-  void updateRenderObject(
-      BuildContext buildContext, RenderConstrainedBox renderBox) {
+  void updateRenderObject(BuildContext buildContext, RenderConstrainedBox renderBox) {
     renderBox
-      ..child = _RenderBox<C>(buildContext, fluttershy)
+      ..child = _FluttershyRenderBox(buildContext, fluttershy)
       ..additionalConstraints = BoxConstraints.expand();
   }
 }
 
-class _RenderBox<C extends Context> extends RenderBox
-    with WidgetsBindingObserver {
+class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   final BuildContext buildContext;
-  final _Fluttershy<C> fluttershy;
+  final _Fluttershy fluttershy;
 
-  int _frameCallbackId;
+  int? _frameCallbackId;
   bool _created;
 
   Duration _previous;
 
-  _RenderBox(
+  _FluttershyRenderBox(
     this.buildContext,
     this.fluttershy,
   )   : _created = false,
@@ -187,7 +98,7 @@ class _RenderBox<C extends Context> extends RenderBox
 
     fluttershy.event(
       ResizeEvent(
-        size: Size(constraints.biggest.width, constraints.biggest.height),
+        size: Vector2(constraints.biggest.width, constraints.biggest.height),
       ),
     );
 
@@ -210,20 +121,22 @@ class _RenderBox<C extends Context> extends RenderBox
 
   @override
   void detach() {
-    super.detach();
-
     fluttershy.destroy();
 
     _unscheduleTick();
     _unbindLifecycleListener();
+
+    super.detach();
   }
 
   void _scheduleTick() {
-    _frameCallbackId = SchedulerBinding.instance.scheduleFrameCallback(_tick);
+    _frameCallbackId = SchedulerBinding.instance?.scheduleFrameCallback(_tick);
   }
 
   void _unscheduleTick() {
-    SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackId);
+    if (_frameCallbackId != null) {
+      SchedulerBinding.instance?.cancelFrameCallbackWithId(_frameCallbackId!);
+    }
   }
 
   void _tick(Duration timestamp) {
@@ -256,22 +169,69 @@ class _RenderBox<C extends Context> extends RenderBox
 
     canvas.save();
 
-    fluttershy.render(
-        canvas, offset, constraints.biggest.width, constraints.biggest.height);
+    fluttershy.render(canvas, offset, constraints.biggest.width, constraints.biggest.height);
 
     canvas.restore();
   }
 
   void _bindLifecycleListener() {
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
   }
 
   void _unbindLifecycleListener() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     fluttershy.event(AppLifecycleEvent(state: state));
+  }
+}
+
+class Fluttershy extends StatelessWidget {
+  final _Fluttershy _fluttershy;
+
+  Fluttershy({
+    void Function()? setup,
+    void Function(Event event)? event,
+    void Function(double deltaTime)? update,
+    void Function(Canvas canvas)? render,
+    void Function()? destroy,
+    Key? key,
+  })  : _fluttershy = _Fluttershy(
+          setup,
+          event,
+          update,
+          render,
+          destroy,
+        ),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext buildContext) {
+    return Listener(
+      onPointerDown: (rawEvent) => _fluttershy.event(
+        PointerDownEvent(rawEvent),
+      ),
+      onPointerMove: (rawEvent) => _fluttershy.event(
+        PointerMoveEvent(rawEvent),
+      ),
+      onPointerUp: (rawEvent) => _fluttershy.event(
+        PointerUpEvent(rawEvent),
+      ),
+      onPointerSignal: (rawEvent) => _fluttershy.event(
+        PointerSignalEvent(rawEvent),
+      ),
+      onPointerCancel: (rawEvent) => _fluttershy.event(
+        PointerCancelEvent(rawEvent),
+      ),
+      child: LayoutBuilder(
+        builder: (buildContext, constraints) {
+          return Container(
+            child: _FluttershyRenderObjectWidget(_fluttershy),
+          );
+        },
+      ),
+    );
   }
 }
