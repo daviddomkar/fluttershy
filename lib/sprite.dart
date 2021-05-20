@@ -13,11 +13,16 @@ class Sprite {
   final Vector2 srcPosition;
   final Vector2 srcSize;
 
-  final Vector2 _position;
-  final Vector2 _size;
+  final Rect rect;
+
+  Vector2 _position;
+  Vector2 _size;
 
   final Vector2 _spriteSrcSize;
   final Vector2 _spriteSrcSizeOffset;
+
+  RSTransform? _transform;
+  bool _dirty;
 
   Sprite({
     required this.texture,
@@ -28,9 +33,11 @@ class Sprite {
     Vector2? spriteSrcSize,
     Vector2? spriteSrcSizeOffset,
   })  : _position = position ?? Vector2.all(0.0),
-        _size = size ?? Vector2.all(100.0),
+        rect = Rect.fromLTWH(srcPosition.x, srcPosition.y, (spriteSrcSize ?? srcSize).x, (spriteSrcSize ?? srcSize).y),
+        _size = size ?? Vector2(spriteSrcSize?.x ?? srcSize.x, spriteSrcSize?.y ?? srcSize.y),
         _spriteSrcSize = spriteSrcSize ?? srcSize,
-        _spriteSrcSizeOffset = spriteSrcSizeOffset ?? Vector2.zero();
+        _spriteSrcSizeOffset = spriteSrcSizeOffset ?? Vector2.zero(),
+        _dirty = true;
 
   void render(Canvas canvas) {
     final scaleX = _spriteSrcSize.x / srcSize.x;
@@ -47,24 +54,41 @@ class Sprite {
     );
   }
 
+  set position(Vector2 position) {
+    _position = position;
+    _dirty = true;
+  }
+
+  set size(Vector2 _size) {
+    _size = position;
+    _dirty = true;
+  }
+
   Vector2 get position => _position;
   Vector2 get size => _size;
   Vector2 get spriteSrcSize => _spriteSrcSize;
   Vector2 get spriteSrcSizeOffset => _spriteSrcSizeOffset;
 
   RSTransform get transform {
-    final offsetX = _spriteSrcSizeOffset.x * (_size.x / srcSize.x);
-    final offsetY = _spriteSrcSizeOffset.y * (_size.y / srcSize.y);
+    if (_dirty) {
+      final offsetX = _spriteSrcSizeOffset.x * (_size.x / srcSize.x);
+      final offsetY = _spriteSrcSizeOffset.y * (_size.y / srcSize.y);
 
-    return RSTransform.fromComponents(
-      rotation: 0.0,
-      scale: (_size.x / srcSize.x),
-      anchorX: 0.0,
-      anchorY: 0.0,
-      translateX: _position.x + offsetX,
-      translateY: _position.y + offsetY,
-    );
+      _transform = RSTransform.fromComponents(
+        rotation: 0.0,
+        scale: (_size.x / srcSize.x),
+        anchorX: 0.0,
+        anchorY: 0.0,
+        translateX: _position.x + offsetX,
+        translateY: _position.y + offsetY,
+      );
+    }
+
+    return _transform!;
   }
 
-  Rect get rect => Rect.fromLTWH(srcPosition.x, srcPosition.y, _spriteSrcSize.x, _spriteSrcSize.y);
+  double get scos => transform.scos;
+  double get ssin => transform.ssin;
+  double get tx => transform.ty;
+  double get ty => transform.tx;
 }

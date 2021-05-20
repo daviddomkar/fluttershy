@@ -39,19 +39,15 @@ class TileManager {
 
     final sprite = sprites.values.toList()[2];
 
-    for (var i = 0; i < 120; i++) {
-      for (var j = 0; j < 250; j++) {
-        _sprites.add(Sprite(
-          texture: sprite.texture,
-          srcPosition: sprite.srcPosition,
-          srcSize: sprite.srcSize,
-          position: Vector2(j * 5.0, i * 5.0),
-          size: Vector2(5.0, 5.0),
-          spriteSrcSize: sprite.spriteSrcSize,
-          spriteSrcSizeOffset: sprite.spriteSrcSizeOffset,
-        ));
-      }
-    }
+    _sprites.add(Sprite(
+      texture: sprite.texture,
+      srcPosition: sprite.srcPosition,
+      srcSize: sprite.srcSize,
+      position: Vector2(200.0, 200.0),
+      size: Vector2(30.0, 20.0),
+      spriteSrcSize: sprite.spriteSrcSize,
+      spriteSrcSizeOffset: sprite.spriteSrcSizeOffset,
+    ));
   }
 
   void render(Canvas canvas) {
