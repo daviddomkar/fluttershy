@@ -1,9 +1,15 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Texture;
 import 'package:fluttershy/math.dart';
 
 import 'texture.dart';
+
+enum ScalingMode {
+  fillX,
+  fillY,
+}
 
 class Sprite {
   final Paint _paint = Paint();
@@ -14,6 +20,8 @@ class Sprite {
   final Vector2 srcSize;
 
   final Rect rect;
+
+  final ScalingMode _scalingMode;
 
   Vector2 _position;
   Vector2 _size;
@@ -28,12 +36,14 @@ class Sprite {
     required this.texture,
     required this.srcPosition,
     required this.srcSize,
+    ScalingMode scalingMode = ScalingMode.fillX,
     Vector2? position,
     Vector2? size,
     Vector2? spriteSrcSize,
     Vector2? spriteSrcSizeOffset,
-  })  : _position = position ?? Vector2.all(0.0),
-        rect = Rect.fromLTWH(srcPosition.x, srcPosition.y, (spriteSrcSize ?? srcSize).x, (spriteSrcSize ?? srcSize).y),
+  })  : rect = Rect.fromLTWH(srcPosition.x, srcPosition.y, (spriteSrcSize ?? srcSize).x, (spriteSrcSize ?? srcSize).y),
+        _scalingMode = scalingMode,
+        _position = position ?? Vector2.all(0.0),
         _size = size ?? Vector2(spriteSrcSize?.x ?? srcSize.x, spriteSrcSize?.y ?? srcSize.y),
         _spriteSrcSize = spriteSrcSize ?? srcSize,
         _spriteSrcSizeOffset = spriteSrcSizeOffset ?? Vector2.zero(),
@@ -76,12 +86,14 @@ class Sprite {
 
       _transform = RSTransform.fromComponents(
         rotation: 0.0,
-        scale: (_size.x / srcSize.x),
+        scale: _scalingMode == ScalingMode.fillX ? (_size.x / srcSize.x) : (_size.y / srcSize.y),
         anchorX: 0.0,
         anchorY: 0.0,
         translateX: _position.x + offsetX,
         translateY: _position.y + offsetY,
       );
+
+      _dirty = false;
     }
 
     return _transform!;
@@ -89,6 +101,6 @@ class Sprite {
 
   double get scos => transform.scos;
   double get ssin => transform.ssin;
-  double get tx => transform.ty;
-  double get ty => transform.tx;
+  double get tx => transform.tx;
+  double get ty => transform.ty;
 }
