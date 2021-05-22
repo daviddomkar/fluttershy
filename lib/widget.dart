@@ -1,13 +1,15 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart' hide Size, PointerDownEvent, PointerMoveEvent, PointerUpEvent, PointerCancelEvent;
-import 'package:flutter/rendering.dart' hide Size, PointerDownEvent, PointerMoveEvent, PointerUpEvent, PointerCancelEvent;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
 import 'fluttershy.dart';
 import 'math.dart';
 
 class _Fluttershy {
+  final Camera camera;
+
   final void Function()? _setup;
   final void Function(Event event)? _event;
   final void Function(double deltaTime)? _update;
@@ -15,6 +17,7 @@ class _Fluttershy {
   final void Function()? _destroy;
 
   _Fluttershy(
+    this.camera,
     void Function()? setup,
     void Function(Event event)? event,
     void Function(double deltaTime)? update,
@@ -38,17 +41,15 @@ class _Fluttershy {
     _update?.call(deltaTime);
   }
 
-  void render(Canvas canvas, Offset offset, double width, double height) {
-    canvas.drawColor(Colors.black, BlendMode.color);
-    canvas.translate(offset.dx, offset.dy);
-    canvas.clipRect(Rect.fromLTWH(
-      0,
-      0,
-      width,
-      height,
-    ));
-
-    _render?.call(canvas);
+  void render(PaintingContext paintingContext, Offset offset, BoxConstraints constraints) {
+    camera.render(
+      paintingContext.canvas,
+      Vector2(offset.dx, offset.dy),
+      Vector2.zero(),
+      1.0,
+      Vector2(constraints.biggest.width, constraints.biggest.height),
+      (canvas) => _render?.call(canvas),
+    );
   }
 
   void destroy() {
@@ -65,13 +66,6 @@ class _FluttershyRenderObjectWidget extends LeafRenderObjectWidget {
   RenderBox createRenderObject(BuildContext buildContext) {
     return RenderConstrainedBox(child: _FluttershyRenderBox(buildContext, fluttershy), additionalConstraints: BoxConstraints.expand());
   }
-
-  @override
-  void updateRenderObject(BuildContext buildContext, RenderConstrainedBox renderBox) {
-    renderBox
-      ..child = _FluttershyRenderBox(buildContext, fluttershy)
-      ..additionalConstraints = BoxConstraints.expand();
-  }
 }
 
 class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
@@ -79,15 +73,13 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   final _Fluttershy fluttershy;
 
   int? _frameCallbackId;
-  bool _created;
 
   Duration _previous;
 
   _FluttershyRenderBox(
     this.buildContext,
     this.fluttershy,
-  )   : _created = false,
-        _previous = Duration.zero;
+  ) : _previous = Duration.zero;
 
   @override
   bool get sizedByParent => true;
@@ -101,12 +93,6 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
         size: Vector2(constraints.biggest.width, constraints.biggest.height),
       ),
     );
-
-    // Update on first frame
-    if (!_created) {
-      fluttershy.update(0);
-      _created = true;
-    }
   }
 
   @override
@@ -165,13 +151,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   @override
   void paint(PaintingContext paintingContext, Offset offset) {
-    final canvas = paintingContext.canvas;
-
-    canvas.save();
-
-    fluttershy.render(canvas, offset, constraints.biggest.width, constraints.biggest.height);
-
-    canvas.restore();
+    fluttershy.render(paintingContext, offset, constraints);
   }
 
   void _bindLifecycleListener() {
@@ -186,12 +166,16 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     fluttershy.event(AppLifecycleEvent(state: state));
   }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) => constraints.biggest;
 }
 
 class Fluttershy extends StatelessWidget {
   final _Fluttershy _fluttershy;
 
   Fluttershy({
+    Camera? camera,
     void Function()? setup,
     void Function(Event event)? event,
     void Function(double deltaTime)? update,
@@ -199,6 +183,10 @@ class Fluttershy extends StatelessWidget {
     void Function()? destroy,
     Key? key,
   })  : _fluttershy = _Fluttershy(
+          camera ??
+              Camera(
+                size: Vector2(double.infinity, 5.0),
+              ),
           setup,
           event,
           update,
@@ -209,29 +197,19 @@ class Fluttershy extends StatelessWidget {
 
   @override
   Widget build(BuildContext buildContext) {
-    return Listener(
-      onPointerDown: (rawEvent) => _fluttershy.event(
-        PointerDownEvent(rawEvent),
-      ),
-      onPointerMove: (rawEvent) => _fluttershy.event(
-        PointerMoveEvent(rawEvent),
-      ),
-      onPointerUp: (rawEvent) => _fluttershy.event(
-        PointerUpEvent(rawEvent),
-      ),
-      onPointerSignal: (rawEvent) => _fluttershy.event(
-        PointerSignalEvent(rawEvent),
-      ),
-      onPointerCancel: (rawEvent) => _fluttershy.event(
-        PointerCancelEvent(rawEvent),
-      ),
-      child: LayoutBuilder(
-        builder: (buildContext, constraints) {
-          return Container(
-            child: _FluttershyRenderObjectWidget(_fluttershy),
-          );
-        },
-      ),
+    return Container(
+      child: LayoutBuilder(builder: (context, constraints) {
+        _fluttershy.event(
+          ResizeEvent(
+            size: Vector2(constraints.biggest.width, constraints.biggest.height),
+          ),
+        );
+
+        return GestureDetector(
+          onTap: () => _fluttershy.event(TapEvent()),
+          child: _FluttershyRenderObjectWidget(_fluttershy),
+        );
+      }),
     );
   }
 }
