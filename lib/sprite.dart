@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Texture;
@@ -7,8 +6,8 @@ import 'package:fluttershy/math.dart';
 import 'texture.dart';
 
 enum ScalingMode {
-  fillX,
-  fillY,
+  containX,
+  containY,
 }
 
 class Sprite {
@@ -16,56 +15,46 @@ class Sprite {
 
   final Texture texture;
 
-  final Vector2 srcPosition;
-  final Vector2 srcSize;
-
-  final Rect rect;
-
   final ScalingMode _scalingMode;
 
   Vector2 _position;
-  Vector2 _size;
-
-  final Vector2 _spriteSrcSize;
-  final Vector2 _spriteSrcSizeOffset;
+  double _rotation;
+  double _scale;
+  Vector2? _size;
 
   RSTransform? _transform;
   bool _dirty;
 
   Sprite({
     required this.texture,
-    required this.srcPosition,
-    required this.srcSize,
-    ScalingMode scalingMode = ScalingMode.fillX,
+    ScalingMode scalingMode = ScalingMode.containX,
     Vector2? position,
+    double? rotation,
+    double? scale,
     Vector2? size,
-    Vector2? spriteSrcSize,
-    Vector2? spriteSrcSizeOffset,
-  })  : rect = Rect.fromLTWH(srcPosition.x, srcPosition.y, (spriteSrcSize ?? srcSize).x, (spriteSrcSize ?? srcSize).y),
-        _scalingMode = scalingMode,
+  })  : _scalingMode = scalingMode,
         _position = position ?? Vector2.all(0.0),
-        _size = size ?? Vector2(spriteSrcSize?.x ?? srcSize.x, spriteSrcSize?.y ?? srcSize.y),
-        _spriteSrcSize = spriteSrcSize ?? srcSize,
-        _spriteSrcSizeOffset = spriteSrcSizeOffset ?? Vector2.zero(),
+        _rotation = rotation ?? 0.0,
+        _scale = scale ?? 1.0,
+        _size = size,
         _dirty = true;
 
   void render(Canvas canvas) {
-    final scaleX = _spriteSrcSize.x / srcSize.x;
-    final scaleY = _spriteSrcSize.y / srcSize.y;
-
-    final offsetX = _spriteSrcSizeOffset.x * (_size.x / srcSize.x);
-    final offsetY = _spriteSrcSizeOffset.y * (_size.y / srcSize.y);
-
-    canvas.drawImageRect(
-      texture.image,
-      Rect.fromLTWH(srcPosition.x, srcPosition.y, _spriteSrcSize.x, _spriteSrcSize.y),
-      Rect.fromLTWH(_position.x + offsetX, _position.y + offsetY, scaleX * _size.x, scaleY * _size.y),
-      _paint,
-    );
+    texture.render(canvas, _position, _rotation, _scale, _scalingMode, _size, _paint);
   }
 
   set position(Vector2 position) {
     _position = position;
+    _dirty = true;
+  }
+
+  set rotation(double rotation) {
+    _rotation = rotation;
+    _dirty = true;
+  }
+
+  set scale(double scale) {
+    _scale = scale;
     _dirty = true;
   }
 
@@ -75,20 +64,21 @@ class Sprite {
   }
 
   Vector2 get position => _position;
-  Vector2 get size => _size;
-  Vector2 get spriteSrcSize => _spriteSrcSize;
-  Vector2 get spriteSrcSizeOffset => _spriteSrcSizeOffset;
+  double get rotation => _rotation;
+  double get scale => _scale;
 
   RSTransform get transform {
     if (_dirty) {
-      final offsetX = _spriteSrcSizeOffset.x * (_size.x / srcSize.x);
-      final offsetY = _spriteSrcSizeOffset.y * (_size.y / srcSize.y);
+      final offsetX = texture.computeRenderOffsetX(_size?.x);
+      final offsetY = texture.computeRenderOffsetY(_size?.y);
+
+      final scale = texture.computeRenderScale(_scalingMode, _size);
 
       _transform = RSTransform.fromComponents(
-        rotation: 0.0,
-        scale: _scalingMode == ScalingMode.fillX ? (_size.x / srcSize.x) : (_size.y / srcSize.y),
-        anchorX: 0.0,
-        anchorY: 0.0,
+        rotation: _rotation,
+        scale: scale * _scale,
+        anchorX: texture.size.x / 2.0,
+        anchorY: texture.size.y / 2.0,
         translateX: _position.x + offsetX,
         translateY: _position.y + offsetY,
       );

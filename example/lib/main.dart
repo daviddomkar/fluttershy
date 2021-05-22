@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -26,14 +25,12 @@ enum TileType { water, grass }
 enum TilePiece { topLeft, top, topRight, centerLeft, center, centerRight, bottomLeft, bottom, bottomRight }
 
 class TileManager {
-  final Map<TileType, Map<TilePiece, List<List<Sprite>>>> _tiles;
   final List<Sprite> _sprites;
 
   final SpriteBatch _spriteBatch;
 
   TileManager.fromSpriteSheet(Image spriteSheetImage, Map<String, dynamic> spriteSheetData)
-      : _tiles = HashMap(),
-        _sprites = [],
+      : _sprites = [],
         _spriteBatch = SpriteBatch() {
     final sprites = SpriteSheetLoader.loadSpriteSheet(spriteSheetImage, spriteSheetData);
 
@@ -42,26 +39,33 @@ class TileManager {
     for (var i = 0; i < 20; i++) {
       for (var j = 0; j < 9 * 16; j++) {
         _sprites.add(Sprite(
-          texture: sprite.texture,
-          srcPosition: sprite.srcPosition,
-          srcSize: sprite.srcSize,
-          position: Vector2(j * 20.0, i * 20.0),
-          size: Vector2(20.0, 20.0),
-          spriteSrcSize: sprite.spriteSrcSize,
-          spriteSrcSizeOffset: sprite.spriteSrcSizeOffset,
+          texture: sprite,
+          rotation: 0.0,
+          scalingMode: ScalingMode.containY,
+          position: Vector2(j * 1.0, i * 1.0),
+          size: Vector2(1.0, 0.5),
         ));
       }
     }
   }
 
+  void update(double deltaTime) {
+    _sprites.forEach((sprite) => sprite.rotation += deltaTime * 2.0);
+  }
+
   void render(Canvas canvas) {
-    _sprites.forEach((sprite) => sprite..render(canvas));
+    _sprites.forEach((sprite) => sprite.render(canvas));
   }
 
   void renderSpriteBatch(Canvas canvas) {
     _sprites.forEach((sprite) => _spriteBatch.render(canvas, sprite));
     _spriteBatch.flush(canvas);
   }
+
+  void getTileCenterSprite() {}
+  void getTileEdgeSprite() {}
+  void getTileCornerSprite() {}
+  void getTileInnerSprite() {}
 }
 
 void main() async {
@@ -77,7 +81,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final TileManager tileManager;
-  final Paint paint = Paint();
 
   MyApp({Key? key, required this.tileManager}) : super(key: key);
 
@@ -92,9 +95,11 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: Container(
           child: Fluttershy(
+            update: (deltaTime) {
+              tileManager.update(deltaTime);
+            },
             render: (canvas) {
-              canvas.drawColor(Colors.black12, BlendMode.src);
-              tileManager.renderSpriteBatch(canvas);
+              tileManager.render(canvas);
             },
           ),
         ),

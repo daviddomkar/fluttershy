@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'texture.dart';
 import 'sprite.dart';
 
 class SpriteBatch {
@@ -11,19 +10,19 @@ class SpriteBatch {
 
   final Paint paint = Paint();
 
-  Texture? texture;
+  Image? image;
 
   final _rawTransforms = Float32List(maxSprites * 4);
   final _rawSources = Float32List(maxSprites * 4);
 
   void render(Canvas canvas, Sprite sprite) {
-    if (sprite.texture != texture || index >= maxSprites) {
+    if (sprite.texture.image != image || index >= maxSprites) {
       flush(canvas);
     }
 
-    texture = sprite.texture;
+    image = sprite.texture.image;
 
-    final rect = sprite.rect;
+    final rect = sprite.texture.rect;
 
     final int index0 = index * 4;
     final int index1 = index0 + 1;
@@ -44,9 +43,9 @@ class SpriteBatch {
   }
 
   void flush(Canvas canvas) {
-    if (texture == null) return;
+    if (image == null) return;
 
-    canvas.drawRawAtlas(texture!.image, _rawTransforms, _rawSources, null, null, null, paint);
+    canvas.drawRawAtlas(image!, _rawTransforms, _rawSources, null, null, null, paint);
 
     _rawTransforms.fillRange(0, _rawTransforms.length, 0.0);
     _rawSources.fillRange(0, _rawSources.length, 0.0);
