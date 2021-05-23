@@ -4,15 +4,15 @@ import 'dart:ui';
 import 'package:fluttershy/math.dart';
 import 'package:fluttershy/fluttershy.dart';
 
-class SpriteSheetLoader {
-  static Map<String, Texture> loadSpriteSheet(Image spriteSheetImage, Map<String, dynamic> spriteSheetData) {
-    final frames = spriteSheetData['frames'] as List<dynamic>;
+class TextureAtlasLoader {
+  static Map<String, Texture> loadTextureAtlas(Image textureAtlasImage, Map<String, dynamic> textureAtlasData) {
+    final frames = textureAtlasData['frames'] as List<dynamic>;
 
-    final spriteMap = HashMap<String, Texture>();
+    final textureMap = HashMap<String, Texture>();
 
     frames.forEach((frame) {
-      spriteMap[frame['filename'] as String] = Texture.fromImage(
-        spriteSheetImage,
+      textureMap[frame['filename'] as String] = Texture.fromImage(
+        textureAtlasImage,
         position: Vector2(
           (frame['frame']['x'] as int).toDouble(),
           (frame['frame']['y'] as int).toDouble(),
@@ -32,6 +32,6 @@ class SpriteSheetLoader {
       );
     });
 
-    return spriteMap;
+    return textureMap;
   }
 }
