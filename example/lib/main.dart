@@ -229,8 +229,9 @@ class TileAtlas {
   }
 
   void renderSpriteBatch(Canvas canvas) {
-    _sprites.forEach((sprite) => _spriteBatch.render(canvas, sprite));
-    _spriteBatch.flush(canvas);
+    _spriteBatch.begin(canvas);
+    _sprites.forEach((sprite) => _spriteBatch.render(sprite));
+    _spriteBatch.end();
   }
 }
 
