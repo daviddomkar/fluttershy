@@ -34,6 +34,18 @@ class _Fluttershy {
   }
 
   void event(Event event) {
+    if (event is ResizeEvent) {
+      final size = event.size;
+
+      if (camera.size.x == double.infinity && camera.size.y == double.infinity) {
+        camera.size = size;
+      } else if (camera.size.x == double.infinity && camera.size.y != double.infinity) {
+        camera.size.x = size.x * (camera.size.y / size.y);
+      } else if (camera.size.x != double.infinity && camera.size.y == double.infinity) {
+        camera.size.y = size.y * (camera.size.x / size.x);
+      }
+    }
+
     _event?.call(event);
   }
 

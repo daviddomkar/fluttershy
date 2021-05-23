@@ -40,6 +40,8 @@ class Camera {
     canvas.restore();
   }
 
+  Vector2 get scaledSize => size * scale;
+
   Vector2 _computeScale(Vector2 size, Vector2 targetSize) {
     if (size.x != double.infinity && size.y != double.infinity) {
       return Vector2(targetSize.x / size.x, targetSize.y / size.y);
