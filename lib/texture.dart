@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart' hide Image;
 import 'package:fluttershy/fluttershy.dart';
 import 'package:fluttershy/math.dart';
 
@@ -40,31 +41,29 @@ class Texture {
   void render(Canvas canvas, Vector2 position, double rotation, double scale, ScalingMode scalingMode, Vector2? size, Paint paint) {
     size = size ?? _size;
 
-    final _scale = computeRenderScale(scalingMode, _trimSize);
-
-    final offsetX = _trimOffset.x * _scale;
-    final offsetY = _trimOffset.y * _scale;
-
     size = computeRenderSize(scalingMode, size);
+
+    final scaleX = _trimSize.x / _size.x;
+    final scaleY = _trimSize.y / _size.y;
+
+    final offsetX = _trimOffset.x * (size.x / _size.x) * scale;
+    final offsetY = _trimOffset.y * (size.y / _size.y) * scale;
 
     canvas.save();
 
     canvas.translate(position.x, position.y);
     canvas.rotate(rotation);
-    canvas.translate(-size.x / 2.0, -size.y / 2.0);
+    canvas.translate(-size.x * scale / 2.0, -size.y * scale / 2.0);
 
     canvas.drawImageRect(
       image,
       Rect.fromLTWH(_position.x, _position.y, _trimSize.x, _trimSize.y),
-      Rect.fromLTWH(offsetX, offsetY, _scale * size.x * scale, _scale * size.y * scale),
+      Rect.fromLTWH(offsetX, offsetY, scaleX * size.x * scale, scaleY * size.y * scale),
       paint,
     );
 
     canvas.restore();
   }
-
-  double computeRenderOffsetX(double? width) => width == null ? _trimOffset.x : _trimOffset.x * (width / _size.x);
-  double computeRenderOffsetY(double? height) => height == null ? _trimOffset.y : _trimOffset.y * (height / _size.y);
 
   double computeRenderScale(ScalingMode mode, Vector2? size) {
     if (size == null) return 1.0;
@@ -86,5 +85,6 @@ class Texture {
     }
   }
 
+  Vector2 get trimOffset => _trimOffset;
   Vector2 get size => _size;
 }

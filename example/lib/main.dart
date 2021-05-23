@@ -10,14 +10,14 @@ import 'package:fluttershy/math.dart';
 import 'package:fluttershy_example/spritesheet_loader.dart';
 
 Future<Image> _loadTilesSpriteSheetImage() async {
-  final data = await rootBundle.load('assets/tiles.png');
+  final data = await rootBundle.load('assets/character.png');
   final bytes = Uint8List.view(data.buffer);
 
   return decodeImageFromList(bytes);
 }
 
 Future<Map<String, dynamic>> _loadTilesSpriteSheetData() async {
-  final data = await rootBundle.loadString('assets/tiles.json');
+  final data = await rootBundle.loadString('assets/character.json');
   return jsonDecode(data) as Map<String, dynamic>;
 }
 
@@ -34,16 +34,15 @@ class TileManager {
         _spriteBatch = SpriteBatch() {
     final sprites = SpriteSheetLoader.loadSpriteSheet(spriteSheetImage, spriteSheetData);
 
-    final sprite = sprites.values.toList()[2];
+    final sprite = sprites.values.toList()[5];
 
     for (var i = 0; i < 20; i++) {
       for (var j = 0; j < 9 * 16; j++) {
         _sprites.add(Sprite(
           texture: sprite,
-          rotation: 0.0,
-          scalingMode: ScalingMode.containY,
-          position: Vector2(j * 1.0, i * 1.0),
-          size: Vector2(1.0, 0.5),
+          position: Vector2(j * 3.0, i * 3.0),
+          scale: 1.0,
+          size: Vector2(1.0, 1.0),
         ));
       }
     }
@@ -95,11 +94,15 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: Container(
           child: Fluttershy(
+            camera: Camera(
+              position: Vector2(0.0, 0.0),
+              scale: 1.0,
+            ),
             update: (deltaTime) {
               tileManager.update(deltaTime);
             },
             render: (canvas) {
-              tileManager.render(canvas);
+              tileManager.renderSpriteBatch(canvas);
             },
           ),
         ),
