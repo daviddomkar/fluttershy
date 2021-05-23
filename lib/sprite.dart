@@ -69,18 +69,13 @@ class Sprite {
 
   RSTransform get transform {
     if (_dirty) {
-      final offsetX = texture.computeRenderOffsetX(_size?.x);
-      final offsetY = texture.computeRenderOffsetY(_size?.y);
-
-      final scale = texture.computeRenderScale(_scalingMode, _size);
-
       _transform = RSTransform.fromComponents(
         rotation: _rotation,
-        scale: scale * _scale,
-        anchorX: texture.size.x / 2.0,
-        anchorY: texture.size.y / 2.0,
-        translateX: _position.x + offsetX,
-        translateY: _position.y + offsetY,
+        scale: texture.computeRenderScale(_scalingMode, _size) * _scale,
+        anchorX: -texture.trimOffset.x + texture.size.x / 2.0,
+        anchorY: -texture.trimOffset.y + texture.size.y / 2.0,
+        translateX: _position.x,
+        translateY: _position.y,
       );
 
       _dirty = false;
