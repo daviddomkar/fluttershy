@@ -10,7 +10,7 @@ class SpriteBatch {
 
   int index = 0;
 
-  final Paint paint = Paint();
+  final Paint paint = Paint()..filterQuality = FilterQuality.low;
 
   Image? image;
 
