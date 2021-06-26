@@ -78,4 +78,9 @@ class Camera {
 
     return transform;
   }
+
+  double get top => position.y - origin.y;
+  double get left => position.x - origin.x;
+  double get bottom => top + scaledSize.y;
+  double get right => left + scaledSize.x;
 }
