@@ -3,9 +3,10 @@ library fluttershy;
 export 'widget.dart';
 
 export 'sprite.dart';
-export 'sprite_batch.dart';
+export 'renderer.dart';
 export 'texture.dart';
 export 'camera.dart';
+export 'renderer.dart';
 
 export 'events/event.dart';
 export 'events/app_lifecycle_event.dart';

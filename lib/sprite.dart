@@ -11,7 +11,7 @@ enum ScalingMode {
 }
 
 class Sprite {
-  final Paint _paint = Paint();
+  final Paint _paint;
 
   final Texture texture;
 
@@ -21,6 +21,8 @@ class Sprite {
   double _rotation;
   double _scale;
   Vector2? _size;
+
+  Color _color;
 
   RSTransform? _transform;
   bool _dirty;
@@ -32,7 +34,10 @@ class Sprite {
     double? rotation,
     double? scale,
     Vector2? size,
-  })  : _scalingMode = scalingMode,
+    Color? color,
+  })  : _paint = Paint()..color = color ?? Colors.white,
+        _color = color ?? Colors.white,
+        _scalingMode = scalingMode,
         _position = position ?? Vector2.all(0.0),
         _rotation = rotation ?? 0.0,
         _scale = scale ?? 1.0,
@@ -58,9 +63,14 @@ class Sprite {
     _dirty = true;
   }
 
-  set size(Vector2 _size) {
+  set size(Vector2 size) {
     _size = position;
     _dirty = true;
+  }
+
+  // ignore: unnecessary_getters_setters
+  set color(Color color) {
+    _color = color;
   }
 
   Vector2 get position => _position;
@@ -88,4 +98,7 @@ class Sprite {
   double get ssin => transform.ssin;
   double get tx => transform.tx;
   double get ty => transform.ty;
+
+  // ignore: unnecessary_getters_setters
+  Color get color => _color;
 }

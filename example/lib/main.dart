@@ -31,7 +31,7 @@ enum TileInner { topLeft, topRight, bottomLeft, bottomRight }
 class TileAtlas {
   final List<Sprite> _sprites;
 
-  final SpriteBatch _spriteBatch;
+  final Renderer _spriteBatch;
 
   final HashMap<TileType, List<Texture>> _tileCenterPiecesTextures;
   final HashMap<TileType, HashMap<TileType, HashMap<TileEdge, List<Texture>>>> _tileEdgePiecesTextures;
@@ -44,7 +44,7 @@ class TileAtlas {
         _tileCornerPiecesTextures = HashMap(),
         _tileInnerPiecesTextures = HashMap(),
         _sprites = [],
-        _spriteBatch = SpriteBatch() {
+        _spriteBatch = Renderer() {
     final textureEntries = TextureAtlasLoader.loadTextureAtlas(textureAtlasImage, textureAtlasData).entries.toList();
 
     for (var i = 0; i < textureEntries.length; i++) {
@@ -230,7 +230,7 @@ class TileAtlas {
 
   void renderSpriteBatch(Canvas canvas) {
     _spriteBatch.begin(canvas);
-    _sprites.forEach((sprite) => _spriteBatch.render(sprite));
+    _sprites.forEach((sprite) => _spriteBatch.renderSprite(sprite));
     _spriteBatch.end();
   }
 }
