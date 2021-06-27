@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 
 import 'fluttershy.dart';
 import 'math.dart';
@@ -114,12 +115,16 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     _scheduleTick();
     _bindLifecycleListener();
 
+    RawKeyboard.instance.addListener(_rawKeyboardListener);
+
     fluttershy.setup(buildContext);
   }
 
   @override
   void detach() {
     fluttershy.destroy();
+
+    RawKeyboard.instance.removeListener(_rawKeyboardListener);
 
     _unscheduleTick();
     _unbindLifecycleListener();
@@ -159,6 +164,10 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
     }
     _previous = now;
     return delta.inMicroseconds / Duration.microsecondsPerSecond;
+  }
+
+  void _rawKeyboardListener(RawKeyEvent event) {
+    fluttershy.event(KeyEvent(rawEvent: event));
   }
 
   @override
@@ -219,6 +228,8 @@ class Fluttershy extends StatelessWidget {
 
         return GestureDetector(
           onTap: () => _fluttershy.event(TapEvent()),
+          onHorizontalDragEnd: (details) => _fluttershy.event(HorizontalDragEndEvent(details: details)),
+          onVerticalDragEnd: (details) => _fluttershy.event(VerticalDragEndEvent(details: details)),
           child: _FluttershyRenderObjectWidget(_fluttershy),
         );
       }),
