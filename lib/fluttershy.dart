@@ -5,6 +5,7 @@ export 'widget.dart';
 export 'sprite.dart';
 export 'renderer.dart';
 export 'texture.dart';
+export 'animated_texture.dart';
 export 'camera.dart';
 export 'renderer.dart';
 

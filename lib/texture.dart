@@ -5,14 +5,12 @@ import 'package:fluttershy/fluttershy.dart';
 import 'package:fluttershy/math.dart';
 
 class Texture {
-  final Image image;
+  Image image;
 
-  late final Vector2 _position;
-  late final Vector2 _size;
-  late final Vector2 _trimOffset;
-  late final Vector2 _trimSize;
-
-  late final Rect rect;
+  late Vector2 position;
+  late Vector2 size;
+  late Vector2 trimOffset;
+  late Vector2 trimSize;
 
   Texture.fromImage(
     this.image, {
@@ -21,33 +19,31 @@ class Texture {
     Vector2? trimOffset,
     Vector2? trimSize,
   }) {
-    _position = position ?? Vector2.zero();
-    _size = size ??
+    this.position = position ?? Vector2.zero();
+    this.size = size ??
         Vector2(
           image.width.toDouble(),
           image.height.toDouble(),
         );
-    _trimOffset = trimOffset ?? Vector2.zero();
-    _trimSize = trimSize ??
+    this.trimOffset = trimOffset ?? Vector2.zero();
+    this.trimSize = trimSize ??
         size ??
         Vector2(
           image.width.toDouble(),
           image.height.toDouble(),
         );
-
-    rect = Rect.fromLTWH(_position.x, _position.y, _trimSize.x, _trimSize.y);
   }
 
   void render(Canvas canvas, Vector2 position, double rotation, double scale, ScalingMode scalingMode, Vector2? size, Paint paint) {
-    size = size ?? _size;
+    size = size ?? this.size;
 
     size = computeRenderSize(scalingMode, size);
 
-    final scaleX = _trimSize.x / _size.x;
-    final scaleY = _trimSize.y / _size.y;
+    final scaleX = trimSize.x / this.size.x;
+    final scaleY = trimSize.y / this.size.y;
 
-    final offsetX = _trimOffset.x * (size.x / _size.x) * scale;
-    final offsetY = _trimOffset.y * (size.y / _size.y) * scale;
+    final offsetX = trimOffset.x * (size.x / this.size.x) * scale;
+    final offsetY = trimOffset.y * (size.y / this.size.y) * scale;
 
     canvas.save();
 
@@ -57,7 +53,7 @@ class Texture {
 
     canvas.drawImageRect(
       image,
-      Rect.fromLTWH(_position.x, _position.y, _trimSize.x, _trimSize.y),
+      Rect.fromLTWH(this.position.x, this.position.y, this.trimSize.x, this.trimSize.y),
       Rect.fromLTWH(offsetX, offsetY, scaleX * size.x * scale, scaleY * size.y * scale),
       paint,
     );
@@ -70,9 +66,9 @@ class Texture {
 
     switch (mode) {
       case ScalingMode.containX:
-        return size.x / _size.x;
+        return size.x / this.size.x;
       case ScalingMode.containY:
-        return size.y / _size.y;
+        return size.y / this.size.y;
     }
   }
 
@@ -85,6 +81,5 @@ class Texture {
     }
   }
 
-  Vector2 get trimOffset => _trimOffset;
-  Vector2 get size => _size;
+  Rect get rect => Rect.fromLTWH(position.x, position.y, trimSize.x, trimSize.y);
 }
