@@ -38,11 +38,11 @@ class _Fluttershy {
     if (event is ResizeEvent) {
       final size = event.size;
 
-      if (camera.size.x == double.infinity && camera.size.y == double.infinity) {
+      if (camera.originalSize.x == double.infinity && camera.originalSize.y == double.infinity) {
         camera.size = size;
-      } else if (camera.size.x == double.infinity && camera.size.y != double.infinity) {
+      } else if (camera.originalSize.x == double.infinity && camera.originalSize.y != double.infinity) {
         camera.size.x = size.x * (camera.size.y / size.y);
-      } else if (camera.size.x != double.infinity && camera.size.y == double.infinity) {
+      } else if (camera.originalSize.x != double.infinity && camera.originalSize.y == double.infinity) {
         camera.size.y = size.y * (camera.size.x / size.x);
       }
     }

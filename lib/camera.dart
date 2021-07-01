@@ -5,6 +5,7 @@ import 'package:fluttershy/math.dart';
 
 class Camera {
   Vector2 size;
+  Vector2 originalSize;
   Vector2 position;
   Vector2 origin;
   double scale;
@@ -14,7 +15,8 @@ class Camera {
     Vector2? position,
     Vector2? origin,
     this.scale = 1.0,
-  })  : this.size = size ?? Vector2(double.infinity, 5.0),
+  })  : this.originalSize = size?.clone() ?? Vector2(double.infinity, 5.0),
+        this.size = size ?? Vector2(double.infinity, 5.0),
         this.position = position ?? Vector2.zero(),
         this.origin = origin ?? Vector2.zero();
 
