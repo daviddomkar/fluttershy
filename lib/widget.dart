@@ -227,6 +227,7 @@ class Fluttershy extends StatelessWidget {
         );
 
         return GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () => _fluttershy.event(TapEvent()),
           onHorizontalDragEnd: (details) => _fluttershy.event(HorizontalDragEndEvent(details: details)),
           onVerticalDragEnd: (details) => _fluttershy.event(VerticalDragEndEvent(details: details)),
