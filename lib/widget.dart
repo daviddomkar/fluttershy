@@ -89,10 +89,13 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   Duration _previous;
 
+  bool _paused;
+
   _FluttershyRenderBox(
     this.buildContext,
     this.fluttershy,
-  ) : _previous = Duration.zero;
+  )   : _previous = Duration.zero,
+        _paused = false;
 
   @override
   bool get sizedByParent => true;
@@ -143,7 +146,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   }
 
   void _tick(Duration timestamp) {
-    if (!attached) {
+    if (!attached || _paused) {
       return;
     }
     _scheduleTick();
@@ -185,6 +188,12 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _paused = false;
+    } else {
+      _paused = true;
+    }
+
     fluttershy.event(AppLifecycleEvent(state: state));
   }
 
