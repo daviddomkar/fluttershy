@@ -1,7 +1,14 @@
+## [0.3.0]
+- BREAKING CHANGES (see the example)
+- Rewrite of the API.
+- Introduced batched rendering of multiple sprites
+- Added Sprite class
+- Added Texture class
+
 ## [0.2.1]
 
 - BREAKING CHANGES (see the example)
-- context widget parameter renamed to contextBuilder now accepts closure which is run before the next setup is run, effectively recreacting context during the lifecycle
+- Context widget parameter renamed to contextBuilder now accepts closure which is run before the next setup is run, effectively recreacting context during the lifecycle
 
 ## [0.2.0]
 
