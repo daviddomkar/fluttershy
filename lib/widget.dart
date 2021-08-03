@@ -188,7 +188,7 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    if (state != AppLifecycleState.paused) {
       _paused = false;
     } else {
       _paused = true;
