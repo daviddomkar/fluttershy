@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
 import 'package:fluttershy/math.dart';
 
 class Camera {
@@ -31,7 +30,7 @@ class Camera {
 
     canvas.clipRect(Rect.fromLTWH(0, 0, size.x, size.y));
     canvas.transform(innerProjection.storage);
-    canvas.drawColor(Colors.black, BlendMode.clear);
+    canvas.drawColor(const Color(0xFF000000), BlendMode.clear);
 
     canvas.save();
 

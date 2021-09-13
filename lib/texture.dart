@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart' hide Image;
 import 'package:fluttershy/fluttershy.dart';
 import 'package:fluttershy/math.dart';
 

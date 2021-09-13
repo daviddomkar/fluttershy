@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flutter/material.dart' hide Texture, Image;
-
 import 'sprite.dart';
 import 'texture.dart';
 
@@ -59,7 +57,7 @@ class Renderer {
     _rawSources[index2] = right;
     _rawSources[index3] = bottom;
 
-    _rawColors[index] = color?.value ?? Colors.white.value;
+    _rawColors[index] = color?.value ?? const Color(0xFFFFFFFF).value;
 
     index++;
   }
@@ -79,7 +77,7 @@ class Renderer {
 
     _rawTransforms.fillRange(0, _rawTransforms.length, 0.0);
     _rawSources.fillRange(0, _rawSources.length, 0.0);
-    _rawColors.fillRange(0, _rawColors.length, Colors.white.value);
+    _rawColors.fillRange(0, _rawColors.length, const Color(0xFFFFFFFF).value);
 
     index = 0;
   }
