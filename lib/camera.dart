@@ -22,7 +22,7 @@ class Camera {
   void render(Canvas canvas, Vector2 position, Vector2 origin, double scale, Vector2 size, void Function(Canvas canvas) renderView) {
     canvas.save();
 
-    canvas.transform(_computeProjection(position, origin, scale).storage);
+    canvas.transform(_computeProjection(position, origin, scale, size).storage);
 
     canvas.save();
 
@@ -55,7 +55,7 @@ class Camera {
     return Vector2.all(1.0);
   }
 
-  Matrix4 _computeProjection(Vector2 position, Vector2 origin, double scale) {
+  Matrix4 _computeProjection(Vector2 position, Vector2 origin, double scale, Vector2 size) {
     final transform = Matrix4.identity()
       ..setFromTranslationRotationScale(
         Vector3(position.x, position.y, 0.0),
@@ -63,7 +63,7 @@ class Camera {
         Vector3(scale, scale, 1.0),
       );
 
-    transform.translate(-Vector3(origin.x, origin.y, 0.0));
+    transform.translate(-Vector3(origin.x * size.x, origin.y * size.y, 0.0));
 
     return transform;
   }
@@ -75,13 +75,13 @@ class Camera {
 
     transform.scale(screenScale.x, screenScale.y);
 
-    transform.multiply(Matrix4.inverted(_computeProjection(position, origin, scale)));
+    transform.multiply(Matrix4.inverted(_computeProjection(position, origin, scale, size)));
 
     return transform;
   }
 
-  double get top => position.y - origin.y;
-  double get left => position.x - origin.x;
+  double get top => position.y - origin.y * scaledSize.y;
+  double get left => position.x - origin.x * scaledSize.x;
   double get bottom => top + scaledSize.y;
   double get right => left + scaledSize.x;
 }

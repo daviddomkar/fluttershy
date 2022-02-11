@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'sprite.dart';
 import 'texture.dart';
 
+const epsilon = 0.1; //4.94065645841247E-324;
+
 class Renderer {
   static const maxBatchedObjects = 2000;
 
@@ -52,10 +54,10 @@ class Renderer {
     _rawTransforms[index2] = tx;
     _rawTransforms[index3] = ty;
 
-    _rawSources[index0] = left;
-    _rawSources[index1] = top;
-    _rawSources[index2] = right;
-    _rawSources[index3] = bottom;
+    _rawSources[index0] = left - epsilon;
+    _rawSources[index1] = top - epsilon;
+    _rawSources[index2] = right + epsilon;
+    _rawSources[index3] = bottom + epsilon;
 
     _rawColors[index] = color?.value ?? const Color(0xFFFFFFFF).value;
 
