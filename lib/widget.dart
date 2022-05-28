@@ -38,11 +38,14 @@ class _Fluttershy {
     if (event is ResizeEvent) {
       final size = event.size;
 
-      if (camera.originalSize.x == double.infinity && camera.originalSize.y == double.infinity) {
+      if (camera.originalSize.x == double.infinity &&
+          camera.originalSize.y == double.infinity) {
         camera.size = size;
-      } else if (camera.originalSize.x == double.infinity && camera.originalSize.y != double.infinity) {
+      } else if (camera.originalSize.x == double.infinity &&
+          camera.originalSize.y != double.infinity) {
         camera.size.x = size.x * (camera.size.y / size.y);
-      } else if (camera.originalSize.x != double.infinity && camera.originalSize.y == double.infinity) {
+      } else if (camera.originalSize.x != double.infinity &&
+          camera.originalSize.y == double.infinity) {
         camera.size.y = size.y * (camera.size.x / size.x);
       }
     }
@@ -54,7 +57,8 @@ class _Fluttershy {
     _update?.call(deltaTime);
   }
 
-  void render(PaintingContext paintingContext, Offset offset, BoxConstraints constraints) {
+  void render(PaintingContext paintingContext, Offset offset,
+      BoxConstraints constraints) {
     camera.render(
       paintingContext.canvas,
       Vector2(offset.dx, offset.dy),
@@ -77,7 +81,9 @@ class _FluttershyRenderObjectWidget extends LeafRenderObjectWidget {
 
   @override
   RenderBox createRenderObject(BuildContext buildContext) {
-    return RenderConstrainedBox(child: _FluttershyRenderBox(buildContext, fluttershy), additionalConstraints: BoxConstraints.expand());
+    return RenderConstrainedBox(
+        child: _FluttershyRenderBox(buildContext, fluttershy),
+        additionalConstraints: BoxConstraints.expand());
   }
 }
 
@@ -133,12 +139,12 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   }
 
   void _scheduleTick() {
-    _frameCallbackId = SchedulerBinding.instance?.scheduleFrameCallback(_tick);
+    _frameCallbackId = SchedulerBinding.instance.scheduleFrameCallback(_tick);
   }
 
   void _unscheduleTick() {
     if (_frameCallbackId != null) {
-      SchedulerBinding.instance?.cancelFrameCallbackWithId(_frameCallbackId!);
+      SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackId!);
     }
   }
 
@@ -176,11 +182,11 @@ class _FluttershyRenderBox extends RenderBox with WidgetsBindingObserver {
   }
 
   void _bindLifecycleListener() {
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   void _unbindLifecycleListener() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
   }
 
   @override
@@ -222,15 +228,18 @@ class Fluttershy extends StatelessWidget {
       child: LayoutBuilder(builder: (context, constraints) {
         _fluttershy.event(
           ResizeEvent(
-            size: Vector2(constraints.biggest.width, constraints.biggest.height),
+            size:
+                Vector2(constraints.biggest.width, constraints.biggest.height),
           ),
         );
 
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () => _fluttershy.event(TapEvent()),
-          onHorizontalDragEnd: (details) => _fluttershy.event(HorizontalDragEndEvent(details: details)),
-          onVerticalDragEnd: (details) => _fluttershy.event(VerticalDragEndEvent(details: details)),
+          onHorizontalDragEnd: (details) =>
+              _fluttershy.event(HorizontalDragEndEvent(details: details)),
+          onVerticalDragEnd: (details) =>
+              _fluttershy.event(VerticalDragEndEvent(details: details)),
           child: _FluttershyRenderObjectWidget(_fluttershy),
         );
       }),

@@ -7,7 +7,7 @@ import 'texture.dart';
 const epsilon = 0.1; //4.94065645841247E-324;
 
 class Renderer {
-  static const maxBatchedObjects = 2000;
+  static const maxBatchedObjects = 1000;
 
   Canvas? _canvas;
 
@@ -37,7 +37,9 @@ class Renderer {
     begin(_canvas!);
   }
 
-  void renderImage(Image image, double left, double top, double right, double bottom, double scos, double ssin, double tx, double ty, [Color? color]) {
+  void renderImage(Image image, double left, double top, double right,
+      double bottom, double scos, double ssin, double tx, double ty,
+      [Color? color]) {
     if (this.image != image || index >= maxBatchedObjects) {
       _flush(_canvas);
     }
@@ -64,18 +66,23 @@ class Renderer {
     index++;
   }
 
-  void renderTexture(Texture texture, double scos, double ssin, double tx, double ty, [Color? color]) {
+  void renderTexture(
+      Texture texture, double scos, double ssin, double tx, double ty,
+      [Color? color]) {
     final rect = texture.rect;
 
-    renderImage(texture.image, rect.left, rect.top, rect.right, rect.bottom, scos, ssin, tx, ty, color);
+    renderImage(texture.image, rect.left, rect.top, rect.right, rect.bottom,
+        scos, ssin, tx, ty, color);
   }
 
-  void renderSprite(Sprite sprite) => renderTexture(sprite.texture, sprite.scos, sprite.ssin, sprite.tx, sprite.ty, sprite.color);
+  void renderSprite(Sprite sprite) => renderTexture(sprite.texture, sprite.scos,
+      sprite.ssin, sprite.tx, sprite.ty, sprite.color);
 
   void _flush(Canvas? canvas) {
     if (image == null || canvas == null || index == 0) return;
 
-    _canvas!.drawRawAtlas(image!, _rawTransforms, _rawSources, _rawColors, BlendMode.modulate, null, paint);
+    _canvas!.drawRawAtlas(image!, _rawTransforms, _rawSources, _rawColors,
+        BlendMode.modulate, null, paint);
 
     _rawTransforms.fillRange(0, _rawTransforms.length, 0.0);
     _rawSources.fillRange(0, _rawSources.length, 0.0);
