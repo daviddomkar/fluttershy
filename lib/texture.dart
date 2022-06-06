@@ -33,7 +33,8 @@ class Texture {
         );
   }
 
-  void render(Canvas canvas, Vector2 position, double rotation, double scale, ScalingMode scalingMode, Vector2? size, Paint paint) {
+  void render(Canvas canvas, Vector2 position, double rotation, double scale,
+      ScalingMode scalingMode, Vector2? size, Paint paint) {
     size = size ?? this.size;
 
     size = computeRenderSize(scalingMode, size);
@@ -52,8 +53,10 @@ class Texture {
 
     canvas.drawImageRect(
       image,
-      Rect.fromLTWH(this.position.x, this.position.y, this.trimSize.x, this.trimSize.y),
-      Rect.fromLTWH(offsetX, offsetY, scaleX * size.x * scale, scaleY * size.y * scale),
+      Rect.fromLTWH(
+          this.position.x, this.position.y, this.trimSize.x, this.trimSize.y),
+      Rect.fromLTWH(
+          offsetX, offsetY, scaleX * size.x * scale, scaleY * size.y * scale),
       paint,
     );
 
@@ -80,5 +83,6 @@ class Texture {
     }
   }
 
-  Rect get rect => Rect.fromLTWH(position.x, position.y, trimSize.x, trimSize.y);
+  Rect get rect =>
+      Rect.fromLTWH(position.x, position.y, trimSize.x, trimSize.y);
 }

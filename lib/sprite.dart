@@ -45,7 +45,8 @@ class Sprite {
         _dirty = true;
 
   void render(Canvas canvas) {
-    texture.render(canvas, _position, _rotation, _scale, _scalingMode, _size, _paint);
+    texture.render(
+        canvas, _position, _rotation, _scale, _scalingMode, _size, _paint);
   }
 
   set position(Vector2 position) {
@@ -64,7 +65,7 @@ class Sprite {
   }
 
   set size(Vector2 size) {
-    _size = position;
+    _size = size;
     _dirty = true;
   }
 
@@ -98,6 +99,9 @@ class Sprite {
   double get ssin => transform.ssin;
   double get tx => transform.tx;
   double get ty => transform.ty;
+
+  Vector2 get size => _size ?? texture.size;
+  Vector2 get scaledSize => (_size ?? texture.size) * scale;
 
   // ignore: unnecessary_getters_setters
   Color get color => _color;
