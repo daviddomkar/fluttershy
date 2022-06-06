@@ -7,7 +7,7 @@ import 'texture.dart';
 const epsilon = 0.1; //4.94065645841247E-324;
 
 class Renderer {
-  static const maxBatchedObjects = 1000;
+  late final int _maxBatchedObjects;
 
   Canvas? _canvas;
 
@@ -17,9 +17,17 @@ class Renderer {
 
   Image? image;
 
-  final _rawTransforms = Float32List(maxBatchedObjects * 4);
-  final _rawSources = Float32List(maxBatchedObjects * 4);
-  final _rawColors = Int32List(maxBatchedObjects);
+  late final Float32List _rawTransforms;
+  late final Float32List _rawSources;
+  late final Int32List _rawColors;
+
+  Renderer({int maxBatchedObjects = 1000}) {
+    this._maxBatchedObjects = maxBatchedObjects;
+
+    _rawTransforms = Float32List(_maxBatchedObjects * 4);
+    _rawSources = Float32List(_maxBatchedObjects * 4);
+    _rawColors = Int32List(_maxBatchedObjects);
+  }
 
   void begin(Canvas canvas) {
     _canvas = canvas;
@@ -40,7 +48,7 @@ class Renderer {
   void renderImage(Image image, double left, double top, double right,
       double bottom, double scos, double ssin, double tx, double ty,
       [Color? color]) {
-    if (this.image != image || index >= maxBatchedObjects) {
+    if (this.image != image || index >= _maxBatchedObjects) {
       _flush(_canvas);
     }
 
